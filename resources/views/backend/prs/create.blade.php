@@ -159,7 +159,7 @@
                                             }
 
                                         @endphp
-                                        <input type="text" placeholder="{{translate('PRS Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[shipping_date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
+                                        <input type="text" placeholder="{{translate('PRS Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
                                         <div class="input-group-append">
                                             <span class="input-group-text">
                                                 <i class="la la-calendar"></i>
@@ -173,25 +173,25 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Vehicle No.')}}:</label>
-                                    <input type="text" placeholder="{{translate('Vehicle No.')}}" name="vehilce_number" class="form-control" required/>
+                                    <input type="text" placeholder="{{translate('Vehicle No.')}}" name="Shipment[vehicle_number]" class="form-control" required/>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Vendor Name')}}:</label>
-                                    <input type="text" placeholder="{{translate('Vendor Name')}}" name="vendor_name" class="form-control" required/>
+                                    <input type="text" placeholder="{{translate('Vendor Name')}}" name="Shipment[vendor_name]" class="form-control" required/>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Vehicle Hire Amount')}}:</label>
-                                    <input type="text" placeholder="{{translate('Vehicle Hire Amount')}}" name="hire_amount" class="form-control" required/>
+                                    <input type="text" placeholder="{{translate('Vehicle Hire Amount')}}" name="Shipment[hire_amount]" class="form-control" required/>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Docket Number')}}:</label>
-                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket_number][]" multiple>
+                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket]" multiple>
                                         <option></option>
                                         @foreach($branchs as $branch)
                                             @if($user_type == 'branch')
@@ -225,14 +225,14 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Receiver Name')}}:</label>
-                                    <input type="text" placeholder="{{translate('Receiver Name')}}" name="Shipment[reciver_name]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Receiver Name')}}" name="Shipment[receiver_name]" class="form-control" />
 
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Pick up Boy Name')}}:</label>
-                                    <input type="text" placeholder="{{translate('Pick up Boy Name')}}" name="Shipment[noy_name]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Pick up Boy Name')}}" name="Shipment[boy_name]" class="form-control" />
 
                                 </div>
                             </div>
@@ -397,7 +397,7 @@
     @endif
 
     $('.select-branch').select2({
-            placeholder: "Select Branch",
+            placeholder: "Select Docket",
     })
     @if($user_type == 'admin' || in_array('1006', $staff_permission) )
         .on('select2:open', () => {
@@ -575,21 +575,21 @@
         FormValidation.formValidation(
             document.getElementById('kt_form_1'), {
                 fields: {
-                    "Shipment[type]": {
+                    "Shipment[vehicle_number]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[shipping_date]": {
+                    "Shipment[date]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[branch_id]": {
+                    "Shipment[vendor_name]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
@@ -612,63 +612,42 @@
                             }
                         }
                     },
-                    "Shipment[client_address]": {
+                    "Shipment[docket]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[client_phone]": {
+                    "Shipment[boy_name]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[payment_type]": {
+                    "Shipment[total_docket]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[payment_method_id]": {
+                    "Shipment[hire_amount]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[tax]": {
+                    "Shipment[receiver_name]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[insurance]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[shipping_cost]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[delivery_time]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[delivery_time]": {
+                    "Shipment[amount_to_be_collected]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
@@ -682,70 +661,7 @@
                             }
                         }
                     },
-                    "Shipment[from_country_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[to_country_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[from_state_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[to_state_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[from_area_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[to_area_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[reciver_name]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[reciver_phone]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[reciver_address]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Package[0][package_id]": {
+                    "Package[0][docket]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'

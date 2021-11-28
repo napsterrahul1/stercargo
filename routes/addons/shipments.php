@@ -52,6 +52,10 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
 
     Route::get('areas/delete/{area}','AreaController@destroy')->name('admin.areas.delete-area');
 
+
+    Route::get('prs/delete/{shipment}','PrsController@destroy')->name('admin.prs.delete-shipment');
+    Route::patch('prs/update/{shipment}','PrsController@update')->name('admin.prs.update-shipment');
+
     Route::get('prs/export-prs/{status}','PrsController@exportShipments')->name('admin.prs.export');
 
     Route::resource('prs','PrsController',[

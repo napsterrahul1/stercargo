@@ -134,7 +134,7 @@
                     <th>{{translate('PRS Date')}}</th>
                     @if($status == "all") <th>{{translate('Status')}}</th> @endif
                     <th>{{translate('Vendor Name')}}</th>
-                    @if($auth_user->user_type != "branch") <th>{{translate('Branch')}}</th> @endif
+
 
                     <th>{{translate('Total Pkg')}}</th>
                     <th>{{translate('Total Weight')}}</th>
@@ -155,6 +155,7 @@
                     $client_id = 0;
                 @endphp
 
+
                 @foreach($shipments as $key=>$shipment)
                     @if($client_id != $shipment->client_id)
                         <tr class="bg-light">
@@ -172,27 +173,26 @@
                         @endphp
                     @endif
 
+
                     <tr>
                         <td>
                             @if($shipment->mission_id)
                                 -
                             @else
-                                <label class="checkbox checkbox-success"><input data-missionid="{{$shipment->mission_id}}" data-clientaddresssender="{{$shipment->from_address->address}}" data-clientaddress="{{$shipment->reciver_address}}" data-clientname="{{$shipment->reciver_name}}" data-clientstatehidden="{{$shipment->to_state_id}}" data-clientstate="{{$shipment->to_state->name ?? '' }}" data-clientareahidden="{{$shipment->to_area_id ?? '' }}" data-clientarea="{{$shipment->to_area->name ?? '' }}" data-clientid="{{$shipment->client->id ?? '' }}" data-paymentmethodid="{{$shipment->payment_method_id ?? '' }}" data-branchid="{{$shipment->branch_id ?? '' }}" data-branchname="{{$shipment->branch->name  ?? '' }}"  type="checkbox" class="sh-check checkbox-client-id-{{$shipment->client_id}}" name="checked_ids[]" value="{{$shipment->id}}" /><span></span></label>
+                                <label class="checkbox checkbox-success"><input data-missionid="{{$shipment->mission_id}}" data-clientaddresssender="" data-clientaddress="{{$shipment->reciver_address}}" data-clientname="{{$shipment->receiver_name}}" data-clientstatehidden="{{$shipment->to_state_id}}" data-clientstate="{{$shipment->to_state->name ?? '' }}" data-clientareahidden="{{$shipment->to_area_id ?? '' }}" data-clientarea="{{$shipment->to_area->name ?? '' }}" data-clientid="{{$shipment->client->id ?? '' }}" data-paymentmethodid="{{$shipment->payment_method_id ?? '' }}" data-branchid="{{$shipment->branch_id ?? '' }}" data-branchname="{{$shipment->branch->name  ?? '' }}"  type="checkbox" class="sh-check checkbox-client-id-{{$shipment->client_id}}" name="checked_ids[]" value="{{$shipment->id}}" /><span></span></label>
                             @endif
+
                         </td>
-                        <td width="3%"><a href="{{route('admin.shipments.show', ['shipment'=>$shipment->id])}}">{{ ($key+1) + ($shipments->currentPage() - 1)*$shipments->perPage() }}</a></td>
-                        <td width="5%"><a href="{{route('admin.shipments.show', ['shipment'=>$shipment->id])}}">{{$shipment->code}}</a></td>
-                        <td>{{$shipment->shipping_date}}</td>
+                        <td width="3%"><a href="{{url('admin/prs/'.$shipment->id )}}">{{ ($key+1) + ($shipments->currentPage() - 1)*$shipments->perPage() }}</a></td>
+                        <td width="5%"><a href="{{url('admin/prs/'. $shipment->id )}}">{{$shipment->code}}</a></td>
+                        <td>{{$shipment->date}}</td>
                         @if($status == "all") <td>{{$shipment->getStatus()}}</td> @endif
-                        <td>{{$shipment->type}}</td>
-                        @if( in_array($user_type ,['admin','customer']) || in_array('1100', $staff_permission) || in_array('1006', $staff_permission) )
-                            <td><a href="{{route('admin.branchs.show',$shipment->branch_id)}}">{{$shipment->branch->name}}</a></td>
-                        @else
-                            <td>{{$shipment->branch->name}}</td>
-                        @endif
+                        <td>{{$shipment->vendor_name }}</td>
+                        <td>{{$shipment->total_weight }}</td>
+
 
                         <td>{{format_price($shipment->tax + $shipment->shipping_cost + $shipment->insurance) }}</td>
-                        <td>{{$shipment->pay->name ?? ""}}</td>
+
                         <td>@if($shipment->paid == 1) {{translate('Paid')}} @else - @endif</td>
 
                             @if($status == \App\Shipment::CAPTAIN_ASSIGNED_STATUS || $status == \App\Shipment::RECIVED_STATUS)
@@ -222,6 +222,7 @@
                             </td>
                         @endif
                     </tr>
+
 
                 @endforeach
 
