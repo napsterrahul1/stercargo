@@ -51,7 +51,6 @@
     $is_def_mile_or_fees = \App\ShipmentSetting::getVal('is_def_mile_or_fees');
     // is_def_mile_or_fees if result 1 for mile if result 2 for fees
 
-    $checked_google_map = \App\BusinessSetting::where('type', 'google_map')->first();
 
     if(!$is_def_mile_or_fees){
         $is_def_mile_or_fees = 0;
@@ -143,8 +142,6 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-12">
-
-
                         <hr>
                         <div class="row">
                             <div class="col-md-6">
@@ -176,25 +173,25 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Vehicle No.')}}:</label>
-                                    <input type="text" placeholder="{{translate('Address')}}" name="client_address" class="form-control" required/>
+                                    <input type="text" placeholder="{{translate('Vehicle No.')}}" name="vehilce_number" class="form-control" required/>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Vendor Name')}}:</label>
-                                    <input type="text" placeholder="{{translate('Address')}}" name="client_address" class="form-control" required/>
+                                    <input type="text" placeholder="{{translate('Vendor Name')}}" name="vendor_name" class="form-control" required/>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Vehicle Hire Amount')}}:</label>
-                                    <input type="text" placeholder="{{translate('Address')}}" name="client_address" class="form-control" required/>
+                                    <input type="text" placeholder="{{translate('Vehicle Hire Amount')}}" name="hire_amount" class="form-control" required/>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Docket Number')}}:</label>
-                                    <select class="form-control kt-select2 select-branch" name="Shipment[branch_id]" multiple>
+                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket_number][]" multiple>
                                         <option></option>
                                         @foreach($branchs as $branch)
                                             @if($user_type == 'branch')
@@ -203,13 +200,9 @@
                                                 <option @if(\App\ShipmentSetting::getVal('def_branch')==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
                                             @endif
                                         @endforeach
-
                                     </select>
                                 </div>
                             </div>
-
-
-
                             <div class="col-md-6">
                                 <div class="form-group client-select">
                                     <label>{{translate('Customer')}}:</label>
@@ -217,15 +210,13 @@
                                         <input type="text" placeholder="" class="form-control" name="" value="{{$auth_user->name}}" disabled>
                                         <input type="hidden" name="Shipment[client_id]" value="{{$auth_user->userClient->id}}">
                                     @else
-                                        <select class="form-control kt-select2 select-client" id="client-id" onchange="selectIsTriggered()" name="Shipment[client_id]">
+                                        <select class="form-control kt-select2 select-client" id="client-id" name="Shipment[client_id]">
                                             <option></option>
                                             @foreach($clients as $client)
                                             <option value="{{$client->id}}" data-phone="{{$client->responsible_mobile}}">{{$client->name}}</option>
                                             @endforeach
-
                                         </select>
                                     @endif
-
                                 </div>
                             </div>
 
@@ -241,14 +232,14 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Pick up Boy Name')}}:</label>
-                                    <input type="text" placeholder="{{translate('Receiver Phone')}}" name="Shipment[reciver_phone]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Pick up Boy Name')}}" name="Shipment[noy_name]" class="form-control" />
 
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Total Docket Number')}}:</label>
-                                    <input type="text" placeholder="{{translate('Receiver Address')}}" name="Shipment[reciver_address]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
 
                                 </div>
                             </div>
@@ -300,14 +291,8 @@
                                             <div class="mb-2 d-md-none"></div>
 
                                         </div>
-
-
-
-
-
                                         <div class="row">
                                             <div class="col-md-12">
-
                                                 <div>
                                                     <br/>
                                                     <a href="javascript:;" data-repeater-delete="" class="btn btn-sm font-weight-bolder btn-light-danger delete_item">
@@ -348,24 +333,11 @@
                                 </div>
 
                             </div>
-
-
-
-
                         </div>
-
                     </div>
 
-
-
-
-
                     <div class="mb-0 text-right form-group">
-                        <button type="button" class="btn btn-sm btn-primary" onclick="get_estimation_cost()">{{translate('Save')}}</button>
-
-
-
-
+                        <button type="submit" class="btn btn-sm btn-primary">{{translate('Save')}}</button>
                     </div>
                 </div>
         </form>
@@ -376,227 +348,9 @@
 @endsection
 
 @section('script')
-<script src="{{ static_asset('assets/dashboard/js/geocomplete/jquery.geocomplete.js') }}"></script>
-<script src="//maps.googleapis.com/maps/api/js?libraries=places&key={{$checked_google_map->key}}"></script>
+
 
 <script type="text/javascript">
-
-    // Map Address For Receiver
-    $('.address-receiver').each(function(){
-        var address = $(this);
-        address.geocomplete({
-            map: ".map_canvas.map-receiver",
-            mapOptions: {
-                zoom: 8,
-                center: { lat: -34.397, lng: 150.644 },
-            },
-            markerOptions: {
-                draggable: true
-            },
-            details: ".location-receiver",
-            detailsAttribute: 'data-receiver',
-            autoselect: true,
-            restoreValueAfterBlur: true,
-        });
-        address.bind("geocode:dragged", function(event, latLng){
-            $("input[data-receiver=lat]").val(latLng.lat());
-            $("input[data-receiver=lng]").val(latLng.lng());
-        });
-    });
-
-    // Map Address For Client
-    $('.address-client').each(function(){
-        var address = $(this);
-        address.geocomplete({
-            map: ".map_canvas.map-client",
-            mapOptions: {
-                zoom: 8,
-                center: { lat: -34.397, lng: 150.644 },
-            },
-            markerOptions: {
-                draggable: true
-            },
-            details: ".location-client",
-            detailsAttribute: 'data-client',
-            autoselect: true,
-            restoreValueAfterBlur: true,
-        });
-        address.bind("geocode:dragged", function(event, latLng){
-            $("input[data-client=lat]").val(latLng.lat());
-            $("input[data-client=lng]").val(latLng.lng());
-        });
-    });
-
-    {{-- function haversine_distance() {
-      var R = 3958.8; // Radius of the Earth in miles
-      var rlat1 = $("input[data-client=lat]").val() * (Math.PI/180); // Convert degrees to radians
-      var rlat2 = $("input[data-receiver=lat]").val() * (Math.PI/180); // Convert degrees to radians
-      var difflat = rlat2-rlat1; // Radian difference (latitudes)
-      var difflon = ($("input[data-receiver=lng]").val()-$("input[data-client=lng]").val()) * (Math.PI/180); // Radian difference (longitudes)
-
-      var d = 2 * R * Math.asin(Math.sqrt(Math.sin(difflat/2)*Math.sin(difflat/2)+Math.cos(rlat1)*Math.cos(rlat2)*Math.sin(difflon/2)*Math.sin(difflon/2)));
-      return d;
-
-      var distance = haversine_distance();
-      console.log(distance);
-    } --}}
-
-    // Get Addressess After Select Client
-    function selectIsTriggered()
-    {
-         getAdressess(document.getElementById("client-id").value);
-    }
-
-    // Ajax Get Address With Cliet Id
-    function getAdressess(client_id)
-    {
-        var id = client_id;
-
-        $.get("{{route('admin.shipments.get-addressess-ajax')}}?client_id=" + id, function(data) {
-            if(data.length != 0){
-                $('select[name ="Shipment[client_address]"]').empty();
-                $('select[name ="Shipment[client_address]"]').append('<option value=""></option>');
-                for (let index = 0; index < data.length; index++) {
-                    const element = data[index];
-                    $('select[name ="Shipment[client_address]"]').append('<option value="' + element['id'] + '">' + element['address'] + '</option>');
-                }
-
-                $('.select-address').select2({
-                    placeholder: "Choose Address",
-                })
-                @if($user_type == 'admin' || $user_type == 'customer' || in_array('1005', $staff_permission) )
-                    .on('select2:open', () => {
-
-                        $('.toRemoveLi').remove();
-
-                        $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;' class='toRemoveLi'><a style="width: 100%" onclick="openAddressDiv()"
-                            class="btn btn-primary" >+ {{translate('Add New Address')}}</a>
-                            </li>`);
-                    });
-                @endif
-            }else{
-                $('select[name ="Shipment[client_address]"]').empty();
-                $('.select-address').select2({
-                    placeholder: "No Addressess Found",
-                })
-                @if($user_type == 'admin' || $user_type == 'customer' || in_array('1005', $staff_permission) )
-                    .on('select2:open', () => {
-
-                        $('.toRemoveLi').remove();
-
-                        $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;' class='toRemoveLi'><a style="width: 100%" onclick="openAddressDiv()"
-                            class="btn btn-primary" >+ {{translate('Add New Address')}}</a>
-                            </li>`);
-                    });
-                @endif
-            }
-        });
-    }
-
-    // Ajax Get Address With Client logged in
-    @if($user_type == 'customer')
-        getAdressess({{$user_client}});
-    @endif
-
-
-    $('#client-addressess').change(function() {
-        var id = $(this).val();
-        $.get("{{route('client.get.one.address')}}?address_id=" + id, function(data) {
-            $("#change-country").val(data[0]['country_id']).change();
-            setTimeout(function(){
-                $("#change-state-from").val(data[0]['state_id']).change();
-                if(data[0]['area_id'] != null || data[0]['area_id'] != ""){
-                    setTimeout(function(){
-                        $("#from_area_id").val(data[0]['area_id']).change();
-                     }, 800);
-                }
-             }, 800);
-        });
-    });
-
-    // Ajax Add New Address For Client
-    function AddNewClientAddress()
-    {
-        @if($user_type == 'customer')
-            var id                    = {{$user_client}};
-        @else
-            var id                    = document.getElementById("client-id").value;
-        @endif
-        var address                   = document.getElementsByName("client_address")[0].value;
-        var country = $('select[name ="country_id"]').val();
-        var state = $('select[name ="state_id"]').val();
-        var area = $('select[name ="area_id"]').val();
-
-        @if($checked_google_map->value == 1)
-            var client_street_address_map = document.getElementsByName("client_street_address_map")[0].value;
-            var client_lat                = document.getElementsByName("client_lat")[0].value;
-            var client_lng                = document.getElementsByName("client_lng")[0].value;
-            var client_url                = document.getElementsByName("client_url")[0].value;
-            if(address != "" && country != "" && state != "" && address != null && country != null && state != null )
-            {
-                $.post( "{{route('client.add.new.address')}}",
-                {
-                    client_id: parseInt(id),
-                    address: address,
-                    client_street_address_map: client_street_address_map,
-                    client_lat: client_lat,
-                    client_lng: client_lng,
-                    client_url: client_url,
-                    country: country,
-                    state: state,
-                    area: area
-                } , function(data){
-                    $('select[name ="Shipment[client_address]"]').empty();
-                    for (let index = 0; index < data.length; index++) {
-                        const element = data[index];
-                        $('select[name ="Shipment[client_address]"]').append('<option value="' + element['id'] + '">' + element['address'] + '</option>');
-                    }
-                    document.getElementsByName("client_address")[0].value            = "";
-                    document.getElementsByName("client_street_address_map")[0].value = "";
-                });
-            }else{
-                Swal.fire("{{translate('Please Enter All Reqired Fields')}}", "", "error");
-            }
-        @else
-            if(address != "" && country != "" && state != "" && address != null && country != null && state != null )
-            {
-                $.post( "{{route('client.add.new.address')}}",
-                {
-                    client_id: parseInt(id),
-                    address: address,
-                    country: country,
-                    state: state,
-                    area: area
-                } , function(data){
-                    $('select[name ="Shipment[client_address]"]').empty();
-                    for (let index = 0; index < data.length; index++) {
-                        const element = data[index];
-                        $('select[name ="Shipment[client_address]"]').append('<option value="' + element['id'] + '">' + element['address'] + '</option>');
-                    }
-                    document.getElementsByName("client_address")[0].value            = "";
-                    var country = $('select[name ="country_id"]').val();
-                    var state = $('select[name ="state_id"]').val();
-                    var area = $('select[name ="area_id"]').val();
-                });
-            }else{
-                Swal.fire("{{translate('Please Enter All Reqired Fields')}}", "", "error");
-            }
-        @endif
-    }
-
-
-    function openAddressDiv()
-    {
-        $( "#show_address_div" ).slideDown( "slow", function() {
-            // Animation complete.
-        });
-    }
-    function closeAddressDiv()
-    {
-        $( "#show_address_div" ).slideUp( "slow", function() {
-            // Animation complete.
-        });
-    }
 
     var inputs = document.getElementsByTagName('input');
 

@@ -178,19 +178,19 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>{{translate('Vehicle No.')}}:</label>
-                                                <input type="text" placeholder="{{translate('Address')}}" name="client_address" class="form-control" required/>
+                                                <input type="text" placeholder="{{translate('Vehicle No.')}}" name="client_address" class="form-control" required/>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>{{translate('Vendor Name')}}:</label>
-                                                <input type="text" placeholder="{{translate('Address')}}" name="client_address" class="form-control" required/>
+                                                <input type="text" placeholder="{{translate('Vendor Name')}}" name="client_address" class="form-control" required/>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>{{translate('Vehicle Hire Amount')}}:</label>
-                                                <input type="text" placeholder="{{translate('Address')}}" name="client_address" class="form-control" required/>
+                                                <input type="text" placeholder="{{translate('Vehicle Hire Amount')}}" name="client_address" class="form-control" required/>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -243,14 +243,14 @@
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>{{translate('Pick up Boy Name')}}:</label>
-                                                <input type="text" placeholder="{{translate('Receiver Phone')}}" name="Shipment[reciver_phone]" class="form-control" />
+                                                <input type="text" placeholder="{{translate('Pick up Boy Name')}}" name="Shipment[reciver_phone]" class="form-control" />
 
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>{{translate('Total Docket Number')}}:</label>
-                                                <input type="text" placeholder="{{translate('Receiver Address')}}" name="Shipment[reciver_address]" class="form-control" />
+                                                <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[reciver_address]" class="form-control" />
 
                                             </div>
                                         </div>

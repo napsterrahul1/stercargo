@@ -997,8 +997,8 @@ class PrsController extends Controller
             DB::beginTransaction();
                 $model = $this->storeShipment($request);
             DB::commit();
-            flash(translate("Shipment added successfully"))->success();
-            return redirect()->route('admin.shipments.show', $model->id);
+            flash(translate("PRS added successfully"))->success();
+            return redirect()->route('admin.prs.show', $model->id);
         } catch (\Exception $e) {
             DB::rollback();
             print_r($e->getMessage());
@@ -1031,8 +1031,6 @@ class PrsController extends Controller
     private function storeShipment($request , $token = null)
     {
         $model = new Shipment();
-
-
         $model->fill($request->Shipment);
         $model->code = -1;
         $model->status_id = Shipment::SAVED_STATUS;
@@ -1042,69 +1040,6 @@ class PrsController extends Controller
         if (!$model->save()) {
             return response()->json(['message' => new \Exception()] );
         }
-
-
-        if(ShipmentSetting::getVal('def_shipment_code_type')=='random'){
-            $barcode = ShipmentPRNG::get();
-        }else{
-            $code = '';
-            for($n = 0; $n < ShipmentSetting::getVal('shipment_code_count'); $n++){
-                $code .= '0';
-            }
-            $code       =   substr($code, 0, -strlen($model->id));
-            $barcode    =   $code.$model->id;
-        }
-        $model->barcode = $barcode;
-        $model->code = ShipmentSetting::getVal('shipment_prefix').$barcode;
-
-        if((Auth::user()->user_type ?? "") == 'customer'){
-            $model->client_id = Auth::user()->userClient->client_id;
-        }
-        if( isset($token) && $model->client_id == null ){
-            $user = User::where('api_token', $token)->first();
-            if(isset($user))
-            {
-                if($user->user_type == 'customer')
-                {
-                    $model->client_id = $user->userClient->client_id;
-                }else{
-                    $model->client_id = $user->id;
-                }
-
-            }else{
-                return response()->json('invalid or Expired Api Key');
-            }
-        }
-
-        if (!$model->save()) {
-            return response()->json(['message' => new \Exception()] );
-        }
-
-        $costs = $this->applyShipmentCost($request->Shipment,$request->Package);
-
-        $model->fill($costs);
-        if (!$model->save()) {
-            return response()->json(['message' => new \Exception()] );
-        }
-
-        $counter = 0;
-        if (isset($request->Package)) {
-            if (!empty($request->Package)) {
-
-                if (isset($request->Package[$counter]['package_id'])) {
-
-                    foreach ($request->Package as $package) {
-                        $package_shipment = new PackageShipment();
-                        $package_shipment->fill($package);
-                        $package_shipment->shipment_id = $model->id;
-                        if (!$package_shipment->save()) {
-                            throw new \Exception();
-                        }
-                    }
-                }
-            }
-        }
-
         event(new AddShipment($model));
 
         return $model;
@@ -1119,16 +1054,16 @@ class PrsController extends Controller
     public function show($id)
     {
         $shipment = Shipment::find($id);
-        return view('backend.shipments.show', compact('shipment'));
+        return view('backend.prs.show', compact('shipment'));
     }
 
     public function print($shipment, $type = 'invoice')
     {
         $shipment = Shipment::find($shipment);
         if($type == 'label'){
-            return view('backend.shipments.print_label', compact('shipment'));
+            return view('backend.prs.print_label', compact('shipment'));
         }else{
-            return view('backend.shipments.print', compact('shipment'));
+            return view('backend.prs.print', compact('shipment'));
         }
     }
 
@@ -1228,7 +1163,7 @@ class PrsController extends Controller
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
         $shipment = Shipment::find($id);
-        return view('backend.shipments.edit', compact('branchs', 'clients', 'shipment'));
+        return view('backend.prs.edit', compact('branchs', 'clients', 'shipment'));
     }
 
     /**
@@ -1275,8 +1210,8 @@ class PrsController extends Controller
 
             event(new UpdateShipment($model));
             DB::commit();
-            flash(translate("Shipment added successfully"))->success();
-            $route = 'admin.shipments.index';
+            flash(translate("PRS added successfully"))->success();
+            $route = 'admin.prs.index';
             return execute_redirect($request, $route);
         } catch (\Exception $e) {
             DB::rollback();
@@ -1292,13 +1227,13 @@ class PrsController extends Controller
     public function covered_countries()
     {
         $countries  = Country::all();
-        return  view('backend.shipments.covered_countries', compact('countries'));
+        return  view('backend.prs.covered_countries', compact('countries'));
     }
     public function covered_cities($country_id)
     {
         $cities  = State::where('country_id', $country_id)->get();
         $country = Country::find($country_id);
-        return  view('backend.shipments.covered_cities', compact('cities', 'country'));
+        return  view('backend.prs.covered_cities', compact('cities', 'country'));
     }
     public function config_costs()
     {
@@ -1309,7 +1244,7 @@ class PrsController extends Controller
             $to = Country::find($to_country);
             $from_cities = State::where('country_id', $from->id)->where('covered', 1)->get();
             $to_cities = State::where('country_id', $to->id)->where('covered', 1)->get();
-            return view('backend.shipments.costs-repeter', compact('from', 'to', 'from_cities', 'to_cities'));
+            return view('backend.prs.costs-repeter', compact('from', 'to', 'from_cities', 'to_cities'));
         }else{
             flash(translate("(From Country) and (To Country) are required"))->error();
             return back();
@@ -1493,7 +1428,7 @@ class PrsController extends Controller
     {
         $shipment = new Shipment;
         $columns = $shipment->getTableColumns();
-        return view('backend.shipments.import',['columns'=>$columns]);
+        return view('backend.prs.import',['columns'=>$columns]);
     }
 
     public function parseImport(Request $request)
@@ -1636,11 +1571,11 @@ class PrsController extends Controller
 
     public function shipmentCalc()
     {
-        return view('backend.shipments.shipment_calc');
+        return view('backend.prs.shipment_calc');
     }
     public function BarcodeScanner()
     {
-        return view('backend.shipments.barcode_scanner');
+        return view('backend.prs.barcode_scanner');
     }
     public function ChangeStatusByBarcode(Request $request)
     {
