@@ -36,7 +36,58 @@
                         <span class="menu-text">{{translate('Dashboard')}}</span>
                     </a>
                 </li>
-               
+
+
+
+                <li class="menu-item {{ areActiveRoutes(['admin.prs'])}}" aria-haspopup="true">
+                    <a href="{{ url('admin/prs') }}" class="menu-link">
+                        <i class="menu-icon flaticon-home"></i>
+                        <span class="menu-text">PRS</span>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ areActiveRoutes(['admin.loading'])}}" aria-haspopup="true">
+                    <a href="{{ url('admin/loading') }}" class="menu-link">
+                        <i class="menu-icon flaticon-home"></i>
+                        <span class="menu-text">Loading Sheet</span>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ areActiveRoutes(['admin.manifest'])}}" aria-haspopup="true">
+                    <a href="{{ url('admin/manifest') }}" class="menu-link">
+                        <i class="menu-icon flaticon-home"></i>
+                        <span class="menu-text">Manifest</span>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ areActiveRoutes(['admin.thc'])}}" aria-haspopup="true">
+                    <a href="{{ url('admin/thc') }}" class="menu-link">
+                        <i class="menu-icon flaticon-home"></i>
+                        <span class="menu-text">THC</span>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ areActiveRoutes(['admin.dashboard'])}}" aria-haspopup="true">
+                    <a href="{{ route('admin.dashboard') }}" class="menu-link">
+                        <i class="menu-icon flaticon-home"></i>
+                        <span class="menu-text">Vehicle InWards</span>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ areActiveRoutes(['admin.dashboard'])}}" aria-haspopup="true">
+                    <a href="{{ route('admin.dashboard') }}" class="menu-link">
+                        <i class="menu-icon flaticon-home"></i>
+                        <span class="menu-text">DRS</span>
+                    </a>
+                </li>
+
+                <li class="menu-item {{ areActiveRoutes(['admin.dashboard'])}}" aria-haspopup="true">
+                    <a href="{{ route('admin.dashboard') }}" class="menu-link">
+                        <i class="menu-icon flaticon-home"></i>
+                        <span class="menu-text">Delivery Updation to POD Uplod</span>
+                    </a>
+                </li>
+
                 @if(count(\File::files(base_path('resources/views/backend/inc/addons/'))) > 0)
                     <li class="menu-section">
                         <h4 class="menu-text">{{translate('Addons')}}</h4>
@@ -47,7 +98,7 @@
                         @include('backend.inc.addons.'.str_replace('.blade','',pathinfo($path)['filename']))
                     @endforeach
                 @endif
-            
+
 
                 <li class="menu-section">
                     <h4 class="menu-text">{{translate('Administration')}}</h4>

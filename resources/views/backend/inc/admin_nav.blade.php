@@ -141,7 +141,7 @@
 
                                 @else
                                     <!--begin::Nav-->
-                                    <div class="d-flex flex-center text-center text-muted min-h-200px">{{translate('All caught up!')}} 
+                                    <div class="d-flex flex-center text-center text-muted min-h-200px">{{translate('All caught up!')}}
                                     <br>{{translate('No new notifications')}}.</div>
                                     <!--end::Nav-->
                                 @endif
@@ -265,6 +265,7 @@
                                 </div>
                             </div>
                         </a>
+                        
 
                         <!--end::Item-->
 
