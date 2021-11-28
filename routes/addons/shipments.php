@@ -1,4 +1,4 @@
-<?php  
+<?php
 
 Route::get('admin/shipments/payment/{shipment_id}','ShipmentController@pay')->name('admin.shipments.pay');
 Route::get('shipment/tracking','ShipmentController@track')->name('admin.shipments.track');
@@ -9,8 +9,11 @@ Route::get('shipments/ajaxed-get-areas','ShipmentController@ajaxGetAreas')->name
 Route::post('shipments/get-estimation-cost','ShipmentController@ajaxGetEstimationCost')->name('admin.shipments.get-estimation-cost');
 Route::get('shipments/export-shipments/{status}','ShipmentController@exportShipments')->name('admin.shipments.export');
 
+
+
+
 Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staff']], function(){
-    
+
     Route::get('shipments/settings','ShipmentController@settings')->name('admin.shipments.settings');
     Route::post('shipments/settings/store','ShipmentController@storeSettings')->name('admin.shipments.settings.store');
 
@@ -32,7 +35,7 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
     Route::resource('costs','CostController',[
         'as' => 'admin'
     ]);
-    
+
     Route::resource('areas','AreaController',[
         'as' => 'admin'
     ]);
@@ -48,7 +51,25 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
     Route::get('deliveryTime/delete/{deliveryTime}','DeliveryTimesController@destroy')->name('admin.deliveryTimes.delete-deliveryTime');
 
     Route::get('areas/delete/{area}','AreaController@destroy')->name('admin.areas.delete-area');
-    
+
+    Route::get('prs/export-prs/{status}','PrsController@exportShipments')->name('admin.prs.export');
+
+    Route::resource('prs','PrsController',[
+        'as' => 'admin'
+    ]);
+
+    Route::get('loading/export-prs/{status}','LoadingController@exportShipments')->name('admin.loading.export');
+
+    Route::resource('loading','LoadingController',[
+        'as' => 'admin'
+    ]);
+
+    Route::get('manifest/export-prs/{status}','ManifestController@exportShipments')->name('admin.manifest.export');
+
+    Route::resource('manifest','ManifestController',[
+        'as' => 'admin'
+    ]);
+
 });
 
 
@@ -69,21 +90,21 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
 
     Route::get('shipments/ajaxed-get-addressess','ShipmentController@ajaxGetAddressess')->name('admin.shipments.get-addressess-ajax');
     Route::get('shipments/generate-token','ShipmentController@ajaxGgenerateToken')->name('admin.shipments.generate-token');
-    
+
     Route::post('shipments/action/{to}','ShipmentController@change')->name('admin.shipments.action');
     Route::post('shipments/action/pickup_mission/{type}','ShipmentController@createPickupMission')->name('admin.shipments.action.create.pickup.mission');
     Route::post('shipments/action/supply_mission/{type}','ShipmentController@createSupplyMission')->name('admin.shipments.action.create.supply.mission');
     Route::post('shipments/action/delivery_mission/{type}','ShipmentController@createDeliveryMission')->name('admin.shipments.action.create.delivery.mission');
     Route::post('shipments/action/return_mission/{type}','ShipmentController@createReturnMission')->name('admin.shipments.action.create.return.mission');
     Route::post('shipments/action/transfer_mission/{type}','ShipmentController@createTransferMission')->name('admin.shipments.action.create.transfer.mission');
-       
+
     Route::get('shipments/shipments-report','ShipmentController@shipmentsReport')->name('admin.shipments.report');
     Route::post('shipments/shipments-report/results','ShipmentController@exportShipmentsReport')->name('admin.shipments.post.report');
     Route::post('shipments/print/stickers','ShipmentController@printStickers')->name('admin.shipments.print.stickers');
     Route::resource('shipments','ShipmentController',[
         'as' => 'admin'
     ]);
-    
+
     Route::get('shipments/delete/{shipment}','ShipmentController@destroy')->name('admin.shipments.delete-shipment');
     Route::patch('shipments/update/{shipment}','ShipmentController@update')->name('admin.shipments.update-shipment');
 
