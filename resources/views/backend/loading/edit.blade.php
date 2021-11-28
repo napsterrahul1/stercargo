@@ -225,14 +225,14 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>{{translate('Loading Staff Name')}}:</label>
-                                                        <input type="text" placeholder="{{translate('Receiver Phone')}}" name="Shipment[reciver_phone]" class="form-control" />
+                                                        <input type="text" placeholder="{{translate('Loading Staff Name')}}" name="Shipment[reciver_phone]" class="form-control" />
 
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>{{translate('Total Docket Number')}}:</label>
-                                                        <input type="text" placeholder="{{translate('Receiver Address')}}" name="Shipment[reciver_address]" class="form-control" />
+                                                        <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[reciver_address]" class="form-control" />
 
                                                     </div>
                                                 </div>
@@ -332,7 +332,7 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group">
                                                             <label>{{translate('Total Amount')}}:</label>
-                                                            <input id="kt_touchspin_3" placeholder="{{translate('Amount to be Collected')}}" type="text" min="0" class="form-control" value="0" name="Shipment[amount_to_be_collected]" />
+                                                            <input id="kt_touchspin_3" placeholder="{{translate('Total Amount')}}" type="text" min="0" class="form-control" value="0" name="Shipment[amount_to_be_collected]" />
                                                         </div>
                                                     </div>
 
