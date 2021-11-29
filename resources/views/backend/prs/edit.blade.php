@@ -291,25 +291,13 @@
                             <div class="row" id="kt_repeater_1">
                                 <h2 class="text-left">{{translate('Package Info')}}:</h2>
                                 <div data-repeater-list="Package" class="col-lg-12">
+                                    @foreach($shipment->packages as $pack)
                                     <div data-repeater-item class="row align-items-center"
                                          style="margin-top: 15px;padding-bottom: 15px;padding-top: 15px;border-top:1px solid #ccc;border-bottom:1px solid #ccc;">
-
-
-                                        {{-- <div class="col-md-3">
-
-                                            <label>{{translate('Package Type')}}:</label>
-                                            <select class="form-control kt-select2 package-type-select" name="package_id">
-                                                <option></option>
-                                                @foreach($packages as $package)
-                                                <option @if(\App\ShipmentSetting::getVal('def_package_type')==$package->id) selected @endif value="{{$package->id}}">{{$package->name}}</option>
-                                                @endforeach
-                                            </select>
-                                            <div class="mb-2 d-md-none"></div>
-                                        </div> --}}
                                         <div class="col-md-3">
                                             <label>{{translate('Package description')}}:</label>
                                             <input type="text" placeholder="{{translate('description')}}"
-                                                   class="form-control" name="description">
+                                                   class="form-control" name="description" value="{{$pack->description}}">
                                             <div class="mb-2 d-md-none"></div>
                                         </div>
 
@@ -321,9 +309,8 @@
                                             <input type="number" min="1" placeholder="{{translate('Weight')}}"
                                                    name="weight"
                                                    class="form-control weight-listener kt_touchspin_weight"
-                                                   onchange="calcTotalWeight()" value="1"/>
+                                                   onchange="calcTotalWeight()" value="{{$pack->weight}}"/>
                                             <div class="mb-2 d-md-none"></div>
-
                                         </div>
 
 
@@ -340,6 +327,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                    @endforeach
                                 </div>
                             </div>
                             <div class="form-group row">

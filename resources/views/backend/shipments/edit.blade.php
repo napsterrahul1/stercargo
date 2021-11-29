@@ -219,10 +219,7 @@
                                     @foreach(\App\PackageShipment::where('shipment_id',$shipment->id)->get() as $pack)
                                     <div data-repeater-item class="row align-items-center" style="margin-top: 15px;padding-bottom: 15px;padding-top: 15px;border-top:1px solid #ccc;border-bottom:1px solid #ccc;">
 
-
-
                                         <div class="col-md-3">
-
                                             <label>{{translate('Category')}}:</label>
                                             <select class="form-control kt-select2" id="select-how" name="package_id" >
                                                 <option></option>
