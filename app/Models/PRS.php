@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Client;
+use App\Models\PRSPackage;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -74,6 +75,10 @@ class PRS extends Model
     public function client()
     {
         return $this->hasOne('App\Client', 'id', 'client_id');
+    }
+    public function packages()
+    {
+        return $this->hasMany('App\Models\PRSPackage','foreign_id');
     }
     public function getStatus()
     {

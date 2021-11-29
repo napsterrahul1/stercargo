@@ -184,6 +184,7 @@ class PrsController extends Controller
      */
     public function update(Request $request, $shipment)
     {
+//        dd($request->all());
         try {
             DB::beginTransaction();
             $model = PRS::find($shipment);
@@ -200,12 +201,23 @@ class PrsController extends Controller
                 if (!empty($_POST['Package'])) {
                     if (isset($_POST['Package'][$counter]['package_id'])) {
                         foreach ($_POST['Package'] as $package) {
+                            $package_shipment = PRSPackage::find($_POST['Package'][$counter]['package_id']);
+                            $package_shipment->fill($package);
+//                            $package_shipment->foreign_id = $model->id;
+                            if (!$package_shipment->save()) {
+                                throw new \Exception();
+                            }
+                            $counter++;
+                        }
+                    }else{
+                        foreach ($_POST['Package'] as $package) {
                             $package_shipment = new PRSPackage();
                             $package_shipment->fill($package);
                             $package_shipment->foreign_id = $model->id;
                             if (!$package_shipment->save()) {
                                 throw new \Exception();
                             }
+                            $counter++;
                         }
                     }
                 }

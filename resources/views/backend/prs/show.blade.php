@@ -157,7 +157,7 @@ $d = new DNS1D();
                         </thead>
                         <tbody>
 
-                            @foreach(\App\PackageShipment::where('shipment_id',$shipment->id)->get() as $package)
+                            @foreach($shipment->packages as $package)
 
                                 <tr class="font-weight-boldest">
                                     <td class="pl-0 border-0 pt-7 d-flex align-items-center">{{$package->description}}</td>
