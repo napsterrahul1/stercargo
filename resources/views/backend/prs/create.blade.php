@@ -191,7 +191,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Docket Number')}}:</label>
-                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket]" multiple>
+                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket][]" multiple>
                                         <option></option>
                                         @foreach($branchs as $branch)
                                             @if($user_type == 'branch')
@@ -612,13 +612,7 @@
                             }
                         }
                     },
-                    "Shipment[docket]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
+
                     "Shipment[boy_name]": {
                         validators: {
                             notEmpty: {
@@ -661,7 +655,7 @@
                             }
                         }
                     },
-                    "Package[0][docket]": {
+                    "Shipment[docket][0]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'

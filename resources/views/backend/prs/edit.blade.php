@@ -210,17 +210,18 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Docket Number')}}:</label>
-                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket]"
+                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket][]"
                                             multiple>
                                         <option></option>
                                         @foreach($branchs as $branch)
-                                            @if($user_type == 'branch')
-                                                <option @if( Auth::user()->userBranch->branch_id==$branch->id) selected
-                                                        @endif value="{{$branch->id}}">{{$branch->name}}</option>
-                                            @else
-                                                <option @if(\App\ShipmentSetting::getVal('def_branch')==$branch->id) selected
-                                                        @endif value="{{$branch->id}}" >{{$branch->name}}</option>
-                                            @endif
+                                                <?php $zoneCityIds= explode(',',$shipment->docket);?>
+                                                @foreach($clients as $client)
+                                                    @if(in_array($branch->id, $zoneCityIds))
+                                                        <option selected value="{{$branch->id}}">{{$branch->name}}</option>
+                                                    @else
+                                                        <option value="{{$branch->id}}">{{$branch->name}}</option>
+                                                    @endif
+                                                @endforeach
                                         @endforeach
 
                                     </select>
@@ -240,7 +241,7 @@
                                         <select class="form-control kt-select2 select-client" id="client-id"
                                                 onchange="selectIsTriggered()" name="Shipment[client_id]">
                                             <option></option>
-                                            <?php $zoneCityIds= explode(',',$shipment->docket);?>
+                                            <?php $zoneCityIds= explode(',',$shipment->client_id);?>
                                             @foreach($clients as $client)
                                                 @if(in_array($client->id, $zoneCityIds))
                                                     <option value="{{$client->id}}" selected="true" data-phone="{{$client->responsible_mobile}}">{{$client->name}}</option>
@@ -648,7 +649,7 @@
                                 }
                             }
                         },
-                        "Shipment[docket]": {
+                        "Shipment[docket][0]": {
                             validators: {
                                 notEmpty: {
                                     message: '{{translate("This is required!")}}'
@@ -697,13 +698,7 @@
                                 }
                             }
                         },
-                        "Package[0][docket]": {
-                            validators: {
-                                notEmpty: {
-                                    message: '{{translate("This is required!")}}'
-                                }
-                            }
-                        }
+
 
 
                     },

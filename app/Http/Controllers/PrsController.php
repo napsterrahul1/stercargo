@@ -104,13 +104,20 @@ class PrsController extends Controller
 
         try {
             DB::beginTransaction();
-                $model = $this->storeShipment($request);
+            $model = new PRS();
+            $model->fill($_POST['Shipment']);
+            $model->docket = implode(',',$request->Shipment['docket']);
+
+            if (!$model->save()) {
+                return response()->json(['message' => new \Exception()] );
+            }
+               // $model = $this->storeShipment($request);
+
             DB::commit();
 
             $counter = 0;
             if (isset($_POST['Package'])) {
                 if (!empty($_POST['Package'])) {
-                    if (isset($_POST['Package'][$counter]['package_id'])) {
                         foreach ($_POST['Package'] as $package) {
                             $package_shipment = new PRSPackage();
                             $package_shipment->fill($package);
@@ -119,7 +126,6 @@ class PrsController extends Controller
                                 throw new \Exception();
                             }
                         }
-                    }
                 }
             }
 
@@ -184,11 +190,12 @@ class PrsController extends Controller
      */
     public function update(Request $request, $shipment)
     {
-//        dd($request->all());
+
         try {
             DB::beginTransaction();
             $model = PRS::find($shipment);
             $model->fill($_POST['Shipment']);
+            $model->docket = implode(',',$request->Shipment['docket']);
 
             if (!$model->save()) {
                 throw new \Exception();
@@ -265,6 +272,8 @@ class PrsController extends Controller
 
         return Excel::download( new PRSExportExcel($status) , $excelName );
     }
+
+
 
 
 }
