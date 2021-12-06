@@ -122,6 +122,7 @@ class PrsController extends Controller
                             $package_shipment = new PRSPackage();
                             $package_shipment->fill($package);
                             $package_shipment->foreign_id = $model->id;
+                            $package_shipment->type = 1;
                             if (!$package_shipment->save()) {
                                 throw new \Exception();
                             }
@@ -204,6 +205,7 @@ class PrsController extends Controller
                 $pack->delete();
             }
             $counter = 0;
+            $all = PRSPackage::where('type',1)->where('foreign_id',$model->id)->delete();
             if (isset($_POST['Package'])) {
                 if (!empty($_POST['Package'])) {
 
@@ -211,6 +213,7 @@ class PrsController extends Controller
                             $package_shipment = new PRSPackage();
                             $package_shipment->fill($package);
                             $package_shipment->foreign_id = $model->id;
+                            $package_shipment->type = 1;
                             if (!$package_shipment->save()) {
                                 throw new \Exception();
                             }

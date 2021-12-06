@@ -37,25 +37,30 @@
                     </a>
                 </li>
 
-
+                <li class="menu-item {{ areActiveRoutes(['admin.dockets'])}}" aria-haspopup="true">
+                    <a href="{{ url('admin/dockets') }}" class="menu-link">
+                        <i class="menu-icon fas fa-box-open"></i>
+                        <span class="menu-text">Docket Entry</span>
+                    </a>
+                </li>
 
                 <li class="menu-item {{ areActiveRoutes(['admin.prs'])}}" aria-haspopup="true">
                     <a href="{{ url('admin/prs') }}" class="menu-link">
-                        <i class="menu-icon flaticon-home"></i>
+                        <i class="menu-icon flaticon-alarm"></i>
                         <span class="menu-text">PRS</span>
                     </a>
                 </li>
 
                 <li class="menu-item {{ areActiveRoutes(['admin.loading'])}}" aria-haspopup="true">
                     <a href="{{ url('admin/loading') }}" class="menu-link">
-                        <i class="menu-icon flaticon-home"></i>
+                        <i class="menu-icon fas fa-shipping-fast"></i>
                         <span class="menu-text">Loading Sheet</span>
                     </a>
                 </li>
 
                 <li class="menu-item {{ areActiveRoutes(['admin.manifest'])}}" aria-haspopup="true">
                     <a href="{{ url('admin/manifest') }}" class="menu-link">
-                        <i class="menu-icon flaticon-home"></i>
+                        <i class="menu-icon fas fa-people-carry"></i>
                         <span class="menu-text">Manifest</span>
                     </a>
                 </li>

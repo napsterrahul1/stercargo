@@ -5,7 +5,7 @@
     $auth_user = Auth::user();
 @endphp
 
-@section('sub_title'){{translate('Manifest')}}@endsection
+@section('sub_title'){{translate('THC')}}@endsection
 @section('subheader')
     <!--begin::Subheader-->
     <div class="py-2 subheader py-lg-6 subheader-solid" id="kt_subheader">
@@ -15,7 +15,7 @@
                 <!--begin::Page Heading-->
                 <div class="flex-wrap mr-5 d-flex align-items-baseline">
                     <!--begin::Page Title-->
-                    <h5 class="my-1 mr-5 text-dark font-weight-bold">{{translate('Manifest')}}</h5>
+                    <h5 class="my-1 mr-5 text-dark font-weight-bold">{{translate('THC')}}</h5>
                     <!--end::Page Title-->
                     <!--begin::Breadcrumb-->
                     <ul class="p-0 my-2 mr-5 breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold font-size-sm">
@@ -23,13 +23,13 @@
                             <a href="{{ route('admin.dashboard')}}" class="text-muted">{{translate('Dashboard')}}</a>
                         </li>
                         <li class="breadcrumb-item text-muted">
-                            <a href="#" class="text-muted">Manifest</a>
+                            <a href="#" class="text-muted">THC</a>
                         </li>
                     </ul>
                     <!--end::Breadcrumb-->
-                    <a href="{{ route('admin.manifest.create') }}" class="btn btn-light-primary font-weight-bolder btn-sm"><i class="flaticon2-add-1"></i> {{translate('Add New Manifest')}}</a>
+                    <a href="{{ route('admin.thc.create') }}" class="btn btn-light-primary font-weight-bolder btn-sm"><i class="flaticon2-add-1"></i> {{translate('Add New THC')}}</a>
                     @if(in_array($auth_user->user_type ,['customer']))
-                        <a href="{{ route('admin.manifest.import') }}" class="ml-3 btn btn-light-primary font-weight-bolder btn-sm">{{translate('Import Shipments')}}</a>
+                        <a href="{{ route('admin.thc.import') }}" class="ml-3 btn btn-light-primary font-weight-bolder btn-sm">{{translate('Import Shipments')}}</a>
                     @endif
                 </div>
                 <!--end::Page Heading-->
@@ -116,7 +116,7 @@
                         <div class="mt-5 col-lg-3 col-xl-12 mt-lg-0 d-flex">
 
 
-                            <a href="{{route('admin.manifest.export', $status)}}" class="ml-auto px-6 btn btn-light-primary font-weight-bold">{{translate('Export Manifest')}}</a>
+                            <a href="{{route('admin.thc.export', $status)}}" class="ml-auto px-6 btn btn-light-primary font-weight-bold">{{translate('Export THC')}}</a>
                         </div>
 
                     </div>
@@ -132,15 +132,20 @@
                     <th width="3%">#</th>
                     <th>{{translate('Code')}}</th>
                     <th>{{translate('Date')}}</th>
-                    @if($status == "all")
-                        <th>{{translate('Origin')}}</th>
-                        <th>{{translate('Destination')}}</th>
-                    @endif
+                    @if($status == "all") <th>{{translate('Status')}}</th> @endif
+
 
 
                     <th>{{translate('Total Pkg')}}</th>
                     <th>{{translate('Total Weight')}}</th>
+                    <th>{{translate('Paid')}}</th>
 
+                    @if($status == \App\Shipment::CAPTAIN_ASSIGNED_STATUS || $status == \App\Shipment::RECIVED_STATUS)
+                        <th>{{translate('Driver')}}</th>
+                    @endif
+                    @if($status == \App\Shipment::APPROVED_STATUS || $status == \App\Shipment::CAPTAIN_ASSIGNED_STATUS || $status == \App\Shipment::RECIVED_STATUS)
+                        <th>{{translate('Mission')}}</th>
+                    @endif
                     <th class="text-center">{{translate('Created At')}}</th>
                     @if($status != "all") <th class="text-center">{{translate('Options')}}</th> @endif
                 </tr>
@@ -177,20 +182,24 @@
                                 <label class="checkbox checkbox-success"><input data-missionid="{{$shipment->mission_id}}" data-clientaddresssender="" data-clientaddress="{{$shipment->reciver_address}}" data-clientname="{{$shipment->receiver_name}}" data-clientstatehidden="{{$shipment->to_state_id}}" data-clientstate="{{$shipment->to_state->name ?? '' }}" data-clientareahidden="{{$shipment->to_area_id ?? '' }}" data-clientarea="{{$shipment->to_area->name ?? '' }}" data-clientid="{{$shipment->client->id ?? '' }}" data-paymentmethodid="{{$shipment->payment_method_id ?? '' }}" data-branchid="{{$shipment->branch_id ?? '' }}" data-branchname="{{$shipment->branch->name  ?? '' }}"  type="checkbox" class="sh-check checkbox-client-id-{{$shipment->client_id}}" name="checked_ids[]" value="{{$shipment->id}}" /><span></span></label>
                             @endif
                         </td>
-                        <td width="3%"><a href="{{url('admin/manifest/'.$shipment->id )}}">{{ ($key+1) + ($shipments->currentPage() - 1)*$shipments->perPage() }}</a></td>
-                        <td width="5%"><a href="{{url('admin/manifest/'. $shipment->id )}}">{{$shipment->code}}</a></td>
+                        <td width="3%"><a href="{{url('admin/loading/'.$shipment->id )}}">{{ ($key+1) + ($shipments->currentPage() - 1)*$shipments->perPage() }}</a></td>
+                        <td width="5%"><a href="{{url('admin/loading/'. $shipment->id )}}">{{$shipment->code}}</a></td>
                         <td>{{$shipment->date}}</td>
-                        @if($status == "all")
-                            <td>{{$shipment->origins->name}}</td>
-                            <td>{{$shipment->destinations->name}}</td>
-                        @endif
-
-                        <td>{{$shipment->amount_to_be_collected }}</td>
-
+                        @if($status == "all") <td>{{$shipment->getStatus()}}</td> @endif
 
                         <td>{{$shipment->total_weight }}</td>
 
 
+                        <td>{{$shipment->total_weight }}</td>
+
+                        <td>@if($shipment->paid == 1) {{translate('Paid')}} @else - @endif</td>
+
+                        @if($status == \App\Shipment::CAPTAIN_ASSIGNED_STATUS || $status == \App\Shipment::RECIVED_STATUS)
+                            <td><a href="{{route('admin.captains.show', $shipment->captain_id)}}">@isset($shipment->captain_id) {{$shipment->captain->name}} @endisset</a></td>
+                        @endif
+                        @if($status == \App\Shipment::APPROVED_STATUS || $status == \App\Shipment::CAPTAIN_ASSIGNED_STATUS || $status == \App\Shipment::RECIVED_STATUS )
+                            <td>@isset($shipment->current_mission->id) <a href="{{route('admin.missions.show', $shipment->current_mission->id)}}"> {{$shipment->current_mission->code}}</a> @endisset</td>
+                        @endif
                         <td class="text-center">
                             {{$shipment->created_at->format('Y-m-d')}}
                         </td>
@@ -199,12 +208,12 @@
                                 <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.shipments.print', ['shipment'=>$shipment->id, 'invoice'])}}" title="{{ translate('Show') }}">
                                     <i class="las la-print"></i>
                                 </a>
-                                <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.manifest.show', $shipment->id)}}" title="{{ translate('Show') }}">
+                                <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.thc.show', $shipment->id)}}" title="{{ translate('Show') }}">
                                     <i class="las la-eye"></i>
                                 </a>
 
                                 {{--@if($status != \App\Shipment::APPROVED_STATUS && $status != \App\Shipment::CAPTAIN_ASSIGNED_STATUS && $status != \App\Shipment::CLOSED_STATUS && $status != \App\Shipment::RECIVED_STATUS && $status != \App\Shipment::IN_STOCK_STATUS && $status != \App\Shipment::DELIVERED_STATUS && $status != \App\Shipment::SUPPLIED_STATUS && $status != \App\Shipment::RETURNED_STATUS )--}}
-                                    <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.manifest.edit', $shipment->id)}}" title="{{ translate('Edit') }}">
+                                    <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.thc.edit', $shipment->id)}}" title="{{ translate('Edit') }}">
                                         <i class="las la-edit"></i>
                                     </a>
                                 {{--@endif--}}
@@ -220,262 +229,8 @@
             </table>
 
             <!-- Assign-to-captain Modal -->
-            <div id="assign-to-captain-modal" class="modal fade">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        @if(isset($status))
-                            @if($status == \App\Shipment::SAVED_STATUS || $status == \App\Shipment::REQUESTED_STATUS)
-                                <div class="modal-header">
-                                    <h4 class="modal-title h6">{{translate('Create Pickup Mission')}}</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <input type="hidden" name="Mission[to_branch_id]" class="form-control branch_hidden" />
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label>{{translate('Customer/Sender')}}:</label>
-                                                <input type="hidden" name="Mission[client_id]" value="" id="pick_up_client_id_hidden">
-                                                <select class="form-control" id="pick_up_client_id" disabled>
-                                                    @foreach(\App\Client::all() as $client)
-                                                        <option value="{{$client->id}}">{{$client->name}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label>{{translate('Pickup Address')}}:</label>
-                                                <input type="text" name="Mission[address]" class="form-control" id="pick_up_address" />
 
-                                            </div>
-                                        </div>
 
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{translate('Type')}}:</label>
-                                                <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control disabled" value="{{translate('Pickup')}}" disabled="disabled" readonly />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{translate('Status')}}:</label>
-                                                <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control disabled" value="{{translate('Requested')}}" disabled="disabled" readonly />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            @elseif($status == \App\Shipment::APPROVED_STATUS)
-                                <div class="modal-header">
-                                    <h4 class="modal-title h6">{{translate('Create Delivery Mission')}}</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        {{-- <input type="hidden" name="Mission[to_branch_id]" class="form-control branch_hidden" /> --}}
-                                        {{-- <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label>{{translate('Customer/Sender')}}:</label>
-                                                <input type="hidden" name="Mission[client_id]" value="" id="pick_up_client_id_hidden">
-                                                <select style="background:#f3f6f9;color:#3f4254;" name="Mission[client_id]" class="form-control" id="pick_up_client_id" disabled>
-                                                    @foreach(\App\Client::all() as $client)
-                                                    <option value="{{$client->id}}">{{$client->name}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div> --}}
-
-                                        {{-- <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label>{{translate('Reciver')}}:</label>
-                                                <input style="background:#f3f6f9;color:#3f4254;" type="text" name="Mission[name]" class="form-control" id="delivery_name" disabled />
-                                            </div>
-                                        </div> --}}
-
-                                        {{-- <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{translate('State')}}:</label>
-                                                <input type="hidden" name="Mission[state]" class="form-control" id="delivery_state_hidden" />
-                                                <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control" id="delivery_state" disabled />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{translate('Area')}}:</label>
-                                                <input type="hidden" name="Mission[area]" class="form-control" id="delivery_state_hidden" />
-                                                <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control" id="delivery_area_hidden" disabled />
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label>{{translate('Delivery Address')}}:</label>
-                                                <input type="text" name="Mission[address]" class="form-control" id="delivery_address" />
-
-                                            </div>
-                                        </div> --}}
-
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{translate('Type')}}:</label>
-                                                <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control disabled" value="{{translate('Delivery')}}" disabled="disabled" readonly />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{translate('Status')}}:</label>
-                                                <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control disabled" value="{{translate('Requested')}}" disabled="disabled" readonly />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            @elseif($status == \App\Shipment::DELIVERED_STATUS)
-                                <div class="modal-header">
-                                    <h4 class="modal-title h6">{{translate('Create Supply Mission')}}</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <input type="hidden" name="Mission[to_branch_id]" class="form-control branch_hidden" />
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label>{{translate('Customer/Sender')}}:</label>
-                                                <input type="hidden" name="Mission[client_id]" value="" id="pick_up_client_id_hidden">
-                                                <select name="Mission[client_id]" class="form-control" id="pick_up_client_id" disabled>
-                                                    @foreach(\App\Client::all() as $client)
-                                                        <option value="{{$client->id}}">{{$client->name}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label>{{translate('Supply Address')}}:</label>
-                                                <input type="text" name="Mission[address]" class="form-control" id="supply_address" />
-
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{translate('Type')}}:</label>
-                                                <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control disabled" value="{{translate('Supply')}}" disabled="disabled" readonly />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{translate('Status')}}:</label>
-                                                <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control disabled" value="{{translate('Requested')}}" disabled="disabled" readonly />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            @elseif($status == \App\Shipment::RETURNED_STOCK)
-                                <div class="modal-header">
-                                    <h4 class="modal-title h6">{{translate('Create Return Mission')}}</h4>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label>{{translate('Customer/Sender')}}:</label>
-                                                <input type="hidden" name="Mission[client_id]" value="" id="pick_up_client_id_hidden">
-                                                <select name="Mission[client_id]" class="form-control" id="pick_up_client_id" disabled>
-                                                    @foreach(\App\Client::all() as $client)
-                                                        <option value="{{$client->id}}">{{$client->name}}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label>{{translate('Address')}}:</label>
-                                                <input type="text" id="return_address" name="Mission[address]" class="form-control" />
-
-                                            </div>
-                                        </div>
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label>{{translate('Amount')}}:</label>
-                                                <input type="number" name="Mission[amount]" class="form-control" value="0" />
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{translate('Type')}}:</label>
-                                                <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control disabled" value="{{translate('Return')}}" disabled="disabled" readonly />
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>{{translate('Status')}}:</label>
-                                                <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control disabled" value="{{translate('Requested')}}" disabled="disabled" readonly />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            @endif
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{translate('Close')}}</button>
-                                <button type="submit" class="btn btn-primary">{{translate('Create Mission')}}</button>
-                            </div>
-                    </div>
-                </div>
-            </div><!-- /.modal -->
-            @endif
-
-            <div id="transfer-to-branch-modal" class="modal fade">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-
-                        <div class="modal-header">
-                            <h4 class="modal-title h6">{{translate('Create Transfer Mission')}}</h4>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>{{translate('From Branch')}}:</label>
-                                        <input style="background:#f3f6f9;color:#3f4254;" id="from_branch_transfer" type="text" class="form-control disabled" value="{{translate('Transfer')}}" disabled="disabled" readonly />
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label>{{translate('To Branch')}}:</label>
-
-                                        <select name="Mission[to_branch_id]" id="to_branch_id" class="form-control">
-                                            <option value="" disabled selected hidden>Choose Branch...</option>
-                                            @foreach(\App\Branch::all() as $branch)
-                                                <option value="{{$branch->id}}">{{$branch->name}}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>{{translate('Type')}}:</label>
-                                        <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control disabled" value="{{translate('Transfer')}}" disabled="disabled" readonly />
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>{{translate('Status')}}:</label>
-                                        <input style="background:#f3f6f9;color:#3f4254;" type="text" class="form-control disabled" value="{{translate('Requested')}}" disabled="disabled" readonly />
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">{{translate('Close')}}</button>
-                            <input type="submit" class="btn btn-primary"  value="{{translate('Create Mission')}}" id="submit_transfer"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </form>
         <div class="aiz-pagination">
             {{ $shipments->appends(request()->input())->links() }}

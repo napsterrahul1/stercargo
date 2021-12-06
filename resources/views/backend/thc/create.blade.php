@@ -1,6 +1,6 @@
 @extends('backend.layouts.app')
 
-@section('sub_title'){{translate('Create Manifest')}}@endsection
+@section('sub_title'){{translate('Create loading')}}@endsection
 
 
 @section('subheader')
@@ -12,7 +12,7 @@
                 <!--begin::Page Heading-->
                 <div class="flex-wrap mr-5 d-flex align-items-baseline">
                     <!--begin::Page Title-->
-                    <h5 class="my-1 mr-5 text-dark font-weight-bold">{{ translate('Create Manifest') }}</h5>
+                    <h5 class="my-1 mr-5 text-dark font-weight-bold">{{ translate('Create THC') }}</h5>
                     <!--end::Page Title-->
                     <!--begin::Breadcrumb-->
                     <ul class="p-0 my-2 mr-5 breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold font-size-sm">
@@ -20,10 +20,10 @@
                             <a href="{{ route('admin.dashboard')}}" class="text-muted">{{translate('Dashboard')}}</a>
                         </li>
                         <li class="breadcrumb-item text-muted">
-                            <a href="{{ route('admin.shipments.index')}}" class="text-muted">{{translate('Manifest')}}</a>
+                            <a href="{{ route('admin.shipments.index')}}" class="text-muted">{{translate('THC')}}</a>
                         </li>
                         <li class="breadcrumb-item text-muted">
-                            <a href="#" class="text-muted">{{ translate('Create Manifest') }}</a>
+                            <a href="#" class="text-muted">{{ translate('Create THC') }}</a>
                         </li>
                     </ul>
                     <!--end::Breadcrumb-->
@@ -42,25 +42,7 @@
 @php
     $auth_user = Auth::user();
 
-    $user_type = Auth::user()->user_type;
-    $staff_permission = json_decode(Auth::user()->staff->role->permissions ?? "[]");
-    $countries = \App\Country::where('covered',1)->get();
-    $packages = \App\Package::all();
-    $deliveryTimes = \App\DeliveryTime::all();
 
-    $is_def_mile_or_fees = \App\ShipmentSetting::getVal('is_def_mile_or_fees');
-    // is_def_mile_or_fees if result 1 for mile if result 2 for fees
-
-    $checked_google_map = \App\BusinessSetting::where('type', 'google_map')->first();
-
-    if(!$is_def_mile_or_fees){
-        $is_def_mile_or_fees = 0;
-    }
-
-    if($user_type == 'customer')
-    {
-        $user_client = Auth::user()->userClient->client_id;
-    }
 @endphp
 <style>
     label {
@@ -75,70 +57,12 @@
     <div class="card">
 
         <div class="card-header">
-            <h5 class="mb-0 h6">{{translate('Manifest Info')}}</h5>
+            <h5 class="mb-0 h6">{{translate('THC Info')}}</h5>
         </div>
 
-        @if($user_type == 'admin' || in_array('1105', $staff_permission) )
-            @if( \App\ShipmentSetting::getVal('def_shipping_cost') == null)
-            <div class="row">
-                <div class="alert alert-danger col-lg-8" style="margin: auto;margin-top:10px;" role="alert">
-                    {{translate('Please Configure Shipping rates in creation will be zero without configuration')}},
-                    <a class="alert-link" href="{{ route('admin.shipments.settings.fees') }}">{{ translate('Configure Now') }}</a>
-                </div>
-            </div>
-            @endif
-            @if(count($countries) == 0 || \App\State::where('covered', 1)->count() == 0)
-            <div class="row">
-                <div class="alert alert-danger col-lg-8" style="margin: auto;margin-top:10px;" role="alert">
-                    {{translate('Please Configure Your covered countries and cities')}},
-                    <a class="alert-link" href="{{ route('admin.shipments.covered_countries') }}">{{ translate('Configure Now') }}</a>
-                </div>
-            </div>
-            @endif
-            @if(\App\Area::count() == 0)
-            <div class="row">
-                <div class="alert alert-danger col-lg-8" style="margin: auto;margin-top:10px;" role="alert">
-                    {{translate('Please Add areas before creating your first shipment')}},
-                    <a class="alert-link" href="{{ route('admin.areas.create') }}">{{ translate('Configure Now') }}</a>
-                </div>
-            </div>
-            @endif
-            @if(count($packages) == 0)
-            <div class="row">
-                <div class="alert alert-danger col-lg-8" style="margin: auto;margin-top:10px;" role="alert">
-                    {{translate('Please Add package types before creating your first shipment')}},
-                    <a class="alert-link" href="{{ route('admin.packages.create') }}">{{ translate('Configure Now') }}</a>
-                </div>
-            </div>
-            @endif
-            @if($branchs->count() == 0)
-            <div class="row">
-                <div class="alert alert-danger col-lg-8" style="margin: auto;margin-top:10px;" role="alert">
-                    {{translate('Please Add branches before creating your first shipment')}},
-                    <a class="alert-link" href="{{ route('admin.branchs.index') }}">{{ translate('Configure Now') }}</a>
-                </div>
-            </div>
-            @endif
 
-            @if($clients->count() == 0)
-            <div class="row">
-                <div class="alert alert-danger col-lg-8" style="margin: auto;margin-top:10px;" role="alert">
-                    {{translate('Please Add clients before creating your first shipment')}},
-                    <a class="alert-link" href="{{ route('admin.clients.index') }}">{{ translate('Configure Now') }}</a>
-                </div>
-            </div>
-            @endif
-        @else
-            @if( \App\ShipmentSetting::getVal('def_shipping_cost') == null || count($countries) == 0 || \App\State::where('covered', 1)->count() == 0 || \App\Area::count() == 0 || count($packages) == 0 || $branchs->count() == 0 || $clients->count() == 0)
-                <div class="row">
-                    <div class="text-center alert alert-danger col-lg-8" style="margin: auto;margin-top:10px;" role="alert">
-                        {{translate('Please ask your administrator to configure shipment settings first, before you can create a new shipment!')}}
-                    </div>
-                </div>
-            @endif
-        @endif
 
-        <form class="form-horizontal" action="{{ route('admin.manifest.store') }}" id="kt_form_1" method="POST" enctype="multipart/form-data">
+        <form class="form-horizontal" action="{{ route('admin.thc.store') }}" id="kt_form_1" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="card-body">
                 <div class="row">
@@ -150,7 +74,7 @@
                             <div class="col-md-6">
                                 @if(\App\ShipmentSetting::getVal('is_date_required') == '1' || \App\ShipmentSetting::getVal('is_date_required') == null)
                                 <div class="form-group">
-                                    <label>{{translate(' Date')}}:</label>
+                                    <label>{{translate('THC Date')}}:</label>
                                     <div class="input-group date">
                                         @php
                                             $defult_shipping_date = \App\ShipmentSetting::getVal('def_shipping_date');
@@ -162,7 +86,7 @@
                                             }
 
                                         @endphp
-                                        <input type="text" placeholder="{{translate('manifest Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
+                                        <input type="text" placeholder="{{translate('THC Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
                                         <div class="input-group-append">
                                             <span class="input-group-text">
                                                 <i class="la la-calendar"></i>
@@ -176,15 +100,21 @@
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>{{translate('Docket Number')}}:</label>
+                                    <label>{{translate('THC Number')}}:</label>
+                                    <input type="text" placeholder="{{translate('Receiver Name')}}" name="Shipment[receiver_name]" class="form-control" />
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Manifest')}}:</label>
                                     <select class="form-control kt-select2 select-branch" name="Shipment[docket][]" multiple>
                                         <option></option>
                                         @foreach($branchs as $branch)
-                                            @if($user_type == 'branch')
-                                                <option @if( Auth::user()->userBranch->branch_id==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
-                                            @else
+
                                                 <option @if(\App\ShipmentSetting::getVal('def_branch')==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
-                                            @endif
+
                                         @endforeach
 
                                     </select>
@@ -196,10 +126,7 @@
                             <div class="col-md-6">
                                 <div class="form-group client-select">
                                     <label>{{translate('Customer')}}:</label>
-                                    @if($auth_user->user_type == "customer")
-                                        <input type="text" placeholder="" class="form-control" name="" value="{{$auth_user->name}}" disabled>
-                                        <input type="hidden" name="Shipment[client_id]" value="{{$auth_user->userClient->id}}">
-                                    @else
+
                                         <select class="form-control kt-select2 select-client" id="client-id" onchange="selectIsTriggered()" name="Shipment[client_id]">
                                             <option></option>
                                             @foreach($clients as $client)
@@ -207,7 +134,7 @@
                                             @endforeach
 
                                         </select>
-                                    @endif
+
 
                                 </div>
                             </div>
@@ -216,12 +143,18 @@
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>{{translate('Receiver Name')}}:</label>
+                                    <label>{{translate('Vendor Name')}}:</label>
                                     <input type="text" placeholder="{{translate('Receiver Name')}}" name="Shipment[receiver_name]" class="form-control" />
 
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Vehicle Number')}}:</label>
+                                    <input type="text" placeholder="{{translate('THC Staff Name')}}" name="Shipment[boy_name]" class="form-control" />
 
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Total Docket Number')}}:</label>
@@ -232,7 +165,7 @@
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>{{translate('Origin')}}:</label>
+                                    <label>{{translate('Vehicle Model')}}:</label>
                                     <select id="origin" name="Shipment[origin]" class="form-control select-state origin">
                                         <option value=""></option>
                                         @foreach($branchs as $branch)
@@ -243,7 +176,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>{{translate('Destination')}}:</label>
+                                    <label>{{translate('Vehicle Type')}}:</label>
                                     <select id="destination" name="Shipment[destination]" class="form-control select-state destination">
                                         <option value=""></option>
                                         @foreach($branchs as $branch)
@@ -255,86 +188,45 @@
 
                             </div>
 
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Hire AMount')}}:</label>
+                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Advance')}}:</label>
+                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Balance Amount')}}:</label>
+                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
+
+                                </div>
+                            </div>
+
 
 
                         </div>
-                        <hr>
 
-                        <hr>
 
                         <div id="kt_repeater_1">
-                            <div class="row" id="kt_repeater_1">
-                                <h2 class="text-left">{{translate('Package Info')}}:</h2>
-                                <div data-repeater-list="Package" class="col-lg-12">
-                                    <div data-repeater-item class="row align-items-center" style="margin-top: 15px;padding-bottom: 15px;padding-top: 15px;border-top:1px solid #ccc;border-bottom:1px solid #ccc;">
-
-
-
-                                        {{-- <div class="col-md-3">
-
-                                            <label>{{translate('Package Type')}}:</label>
-                                            <select class="form-control kt-select2 package-type-select" name="package_id">
-                                                <option></option>
-                                                @foreach($packages as $package)
-                                                <option @if(\App\ShipmentSetting::getVal('def_package_type')==$package->id) selected @endif value="{{$package->id}}">{{$package->name}}</option>
-                                                @endforeach
-                                            </select>
-                                            <div class="mb-2 d-md-none"></div>
-                                        </div> --}}
-                                        <div class="col-md-3">
-                                            <label>{{translate('Package description')}}:</label>
-                                            <input type="text" placeholder="{{translate('description')}}" class="form-control" name="description">
-                                            <div class="mb-2 d-md-none"></div>
-                                        </div>
-
-
-                                        <div class="col-md-3">
-
-                                            <label>{{translate('Weight')}}:</label>
-
-                                            <input type="number" min="1" placeholder="{{translate('Weight')}}" name="weight" class="form-control weight-listener kt_touchspin_weight" onchange="calcTotalWeight()" value="1" />
-                                            <div class="mb-2 d-md-none"></div>
-
-                                        </div>
-
-
-
-
-
-                                        <div class="row">
-                                            <div class="col-md-12">
-
-                                                <div>
-                                                    <br/>
-                                                    <a href="javascript:;" data-repeater-delete="" class="btn btn-sm font-weight-bolder btn-light-danger delete_item">
-                                                        <i class="la la-trash-o"></i>{{translate('Delete')}}
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <div class="">
-                                    <label class="text-right col-form-label">{{translate('Add')}}</label>
-                                    <div>
-                                        <a href="javascript:;" data-repeater-create="" class="btn btn-sm font-weight-bolder btn-light-primary">
-                                            <i class="la la-plus"></i>{{translate('Add')}}
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
 
                             <hr>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>{{translate('Total Amount')}}:</label>
+                                        <label>{{translate('Total Package')}}:</label>
                                         <input id="kt_touchspin_3" placeholder="{{translate('Total Amount')}}" type="text" min="0" class="form-control" value="0" name="Shipment[amount_to_be_collected]" />
                                     </div>
                                 </div>
-
 
                                 <div class="col-md-6">
                                     <div class="form-group">
@@ -382,13 +274,13 @@
     $('.select-client').select2({
             placeholder: "Select Client",
         })
-    @if($user_type == 'admin' || in_array('1005', $staff_permission) )
-        .on('select2:open', () => {
-            $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.clients.create')}}?redirect=admin.shipments.create"
-                class="btn btn-primary" >+ {{translate('Add New Client')}}</a>
-                </li>`);
-        });
-    @endif
+    {{--@if($user_type == 'admin' || in_array('1005', $staff_permission) )--}}
+        {{--.on('select2:open', () => {--}}
+            {{--$(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.clients.create')}}?redirect=admin.shipments.create"--}}
+                {{--class="btn btn-primary" >+ {{translate('Add New Client')}}</a>--}}
+                {{--</li>`);--}}
+        {{--});--}}
+    {{--@endif--}}
 
     $('.select-client').change(function(){
 //        var client_phone = $(this).find(':selected').data('phone');

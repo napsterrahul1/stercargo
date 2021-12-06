@@ -15,3 +15,4 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
 Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staff']], function(){
     Route::get('clients/delete/{client}','ClientController@destroy')->name('admin.clients.delete-client');
 });
+

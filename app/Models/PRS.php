@@ -78,7 +78,7 @@ class PRS extends Model
     }
     public function packages()
     {
-        return $this->hasMany('App\Models\PRSPackage','foreign_id');
+        return $this->hasMany('App\Models\PRSPackage','foreign_id')->where('type','=', 1);
     }
     public function getStatus()
     {

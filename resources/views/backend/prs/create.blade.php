@@ -463,17 +463,6 @@
 
 
 
-                $('.dimensions_r').TouchSpin({
-                    buttondown_class: 'btn btn-secondary',
-                    buttonup_class: 'btn btn-secondary',
-
-                    min: 1,
-                    max: 1000000000,
-                    stepinterval: 50,
-                    maxboostedstep: 10000000,
-                    initval: 1,
-                });
-
                 $('.kt_touchspin_weight').TouchSpin({
                     buttondown_class: 'btn btn-secondary',
                     buttonup_class: 'btn btn-secondary',
@@ -560,16 +549,7 @@
             maxboostedstep: 10000000,
             initval: 1,
         });
-        $('.dimensions_r').TouchSpin({
-            buttondown_class: 'btn btn-secondary',
-            buttonup_class: 'btn btn-secondary',
 
-            min: 1,
-            max: 1000000000,
-            stepinterval: 50,
-            maxboostedstep: 10000000,
-            initval: 1,
-        });
 
 
         FormValidation.formValidation(

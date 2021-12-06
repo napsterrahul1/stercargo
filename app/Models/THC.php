@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Link whereUrl($value)
  * @mixin \Eloquent
  */
-class Manifest extends Model
+class THC extends Model
 {
     //
     //Shipment Types
@@ -68,17 +68,14 @@ class Manifest extends Model
     const CLIENT_STATUS_DELIVERED = 7;
     const CLIENT_STATUS_SUPPLIED = 8;
 
-    protected $table = 'manifest';
-    protected $fillable = ['date','docket','client_id','receiver_name','total_docket','amount_to_be_collected','total_weight','origin','destination'];
+    protected $table = 'loading';
+    protected $fillable = ['date','docket','client_id','receiver_name','boy_name','total_docket','amount_to_be_collected','total_weight','origin','destination'];
 
     public function client()
     {
         return $this->hasOne('App\Client', 'id', 'client_id');
     }
-    public function packages()
-    {
-        return $this->hasMany('App\Models\PRSPackage','foreign_id')->where('type','=', 3);
-    }
+
     public function origins()
     {
         return $this->hasOne('App\Branch', 'id', 'origin');
@@ -86,6 +83,11 @@ class Manifest extends Model
     public function destinations()
     {
         return $this->hasOne('App\Branch', 'id', 'destination');
+    }
+
+    public function packages()
+    {
+        return $this->hasMany('App\Models\PRSPackage','foreign_id')->where('type','=', 2);
     }
     public function getStatus()
     {

@@ -1,6 +1,6 @@
 @extends('backend.layouts.app')
 
-                    @section('sub_title'){{translate('Edit manifest')}}@endsection
+                    @section('sub_title'){{translate('Edit loading')}}@endsection
 
 
                     @section('subheader')
@@ -12,7 +12,7 @@
                                     <!--begin::Page Heading-->
                                     <div class="flex-wrap mr-5 d-flex align-items-baseline">
                                         <!--begin::Page Title-->
-                                        <h5 class="my-1 mr-5 text-dark font-weight-bold">{{ translate('Edit manifest') }}</h5>
+                                        <h5 class="my-1 mr-5 text-dark font-weight-bold">{{ translate('Edit loading') }}</h5>
                                         <!--end::Page Title-->
                                         <!--begin::Breadcrumb-->
                                         <ul class="p-0 my-2 mr-5 breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold font-size-sm">
@@ -20,10 +20,10 @@
                                                 <a href="{{ route('admin.dashboard')}}" class="text-muted">{{translate('Dashboard')}}</a>
                                             </li>
                                             <li class="breadcrumb-item text-muted">
-                                                <a href="{{ route('admin.shipments.index')}}" class="text-muted">{{translate('manifest')}}</a>
+                                                <a href="{{ route('admin.shipments.index')}}" class="text-muted">{{translate('loading')}}</a>
                                             </li>
                                             <li class="breadcrumb-item text-muted">
-                                                <a href="#" class="text-muted">{{ translate('Edit manifest') }}</a>
+                                                <a href="#" class="text-muted">{{ translate('Edit loading') }}</a>
                                             </li>
                                         </ul>
                                         <!--end::Breadcrumb-->
@@ -75,7 +75,7 @@
                         <div class="card">
 
                             <div class="card-header">
-                                <h5 class="mb-0 h6">{{translate('manifest Info')}}</h5>
+                                <h5 class="mb-0 h6">{{translate('loading Info')}}</h5>
                             </div>
 
                             @if($user_type == 'admin' || in_array('1105', $staff_permission) )
@@ -138,7 +138,7 @@
                                 @endif
                             @endif
 
-                            <form class="form-horizontal" action="{{ route('admin.manifest.update-shipment',['shipment'=>$shipment->id]) }}" id="kt_form_1" method="POST" enctype="multipart/form-data">
+                            <form class="form-horizontal" action="{{ route('admin.thc.update-shipment',['shipment'=>$shipment->id]) }}" id="kt_form_1" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 {{ method_field('PATCH') }}
                                 <div class="card-body">
@@ -163,7 +163,7 @@
                                                                 }
 
                                                             @endphp
-                                                            <input type="text" placeholder="{{translate('manifest Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
+                                                            <input type="text" placeholder="{{translate('loading Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
                                                             <div class="input-group-append">
                                                                 <span class="input-group-text">
                                                                     <i class="la la-calendar"></i>
@@ -223,7 +223,13 @@
 
                                                     </div>
                                                 </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label>{{translate('Loading Staff Name')}}:</label>
+                                                        <input type="text" placeholder="{{translate('Loading Staff Name')}}" name="Shipment[boy_name]" value="{{ $shipment->boy_name }}" class="form-control" />
 
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>{{translate('Total Docket Number')}}:</label>

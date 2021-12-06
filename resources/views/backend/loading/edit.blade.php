@@ -1,6 +1,6 @@
 @extends('backend.layouts.app')
 
-                    @section('sub_title'){{translate('Create loading')}}@endsection
+                    @section('sub_title'){{translate('Edit loading')}}@endsection
 
 
                     @section('subheader')
@@ -12,7 +12,7 @@
                                     <!--begin::Page Heading-->
                                     <div class="flex-wrap mr-5 d-flex align-items-baseline">
                                         <!--begin::Page Title-->
-                                        <h5 class="my-1 mr-5 text-dark font-weight-bold">{{ translate('Create loading') }}</h5>
+                                        <h5 class="my-1 mr-5 text-dark font-weight-bold">{{ translate('Edit loading') }}</h5>
                                         <!--end::Page Title-->
                                         <!--begin::Breadcrumb-->
                                         <ul class="p-0 my-2 mr-5 breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold font-size-sm">
@@ -23,7 +23,7 @@
                                                 <a href="{{ route('admin.shipments.index')}}" class="text-muted">{{translate('loading')}}</a>
                                             </li>
                                             <li class="breadcrumb-item text-muted">
-                                                <a href="#" class="text-muted">{{ translate('Create loading') }}</a>
+                                                <a href="#" class="text-muted">{{ translate('Edit loading') }}</a>
                                             </li>
                                         </ul>
                                         <!--end::Breadcrumb-->
@@ -154,7 +154,7 @@
                                                         <label>{{translate(' Date')}}:</label>
                                                         <div class="input-group date">
                                                             @php
-                                                                $defult_shipping_date = \App\ShipmentSetting::getVal('def_shipping_date');
+                                                                $defult_shipping_date = $shipment->date;
                                                                 if($defult_shipping_date == null )
                                                                 {
                                                                     $shipping_data = \Carbon\Carbon::now()->addDays(0);
@@ -163,7 +163,7 @@
                                                                 }
 
                                                             @endphp
-                                                            <input type="text" placeholder="{{translate('loading Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[shipping_date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
+                                                            <input type="text" placeholder="{{translate('loading Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
                                                             <div class="input-group-append">
                                                                 <span class="input-group-text">
                                                                     <i class="la la-calendar"></i>
@@ -178,38 +178,39 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>{{translate('Docket Number')}}:</label>
-                                                        <select class="form-control kt-select2 select-branch" name="Shipment[branch_id]" multiple>
+                                                        <select class="form-control kt-select2 select-branch" name="Shipment[docket][]"
+                                                                multiple>
                                                             <option></option>
                                                             @foreach($branchs as $branch)
-                                                                @if($user_type == 'branch')
-                                                                    <option @if( Auth::user()->userBranch->branch_id==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
-                                                                @else
-                                                                    <option @if(\App\ShipmentSetting::getVal('def_branch')==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
-                                                                @endif
+                                                                <?php $zoneCityIds= explode(',',$shipment->docket);?>
+                                                                @foreach($clients as $client)
+                                                                    @if(in_array($branch->id, $zoneCityIds))
+                                                                        <option selected value="{{$branch->id}}">{{$branch->name}}</option>
+                                                                    @else
+                                                                        <option value="{{$branch->id}}">{{$branch->name}}</option>
+                                                                    @endif
+                                                                @endforeach
                                                             @endforeach
 
                                                         </select>
                                                     </div>
                                                 </div>
 
-
-
                                                 <div class="col-md-6">
                                                     <div class="form-group client-select">
                                                         <label>{{translate('Customer')}}:</label>
-                                                        @if($auth_user->user_type == "customer")
-                                                            <input type="text" placeholder="" class="form-control" name="" value="{{$auth_user->name}}" disabled>
-                                                            <input type="hidden" name="Shipment[client_id]" value="{{$auth_user->userClient->id}}">
-                                                        @else
-                                                            <select class="form-control kt-select2 select-client" id="client-id" onchange="selectIsTriggered()" name="Shipment[client_id]">
+
+                                                            <select class="form-control kt-select2 select-client" id="client-id"
+                                                                    onchange="selectIsTriggered()" name="Shipment[client_id]">
                                                                 <option></option>
                                                                 @foreach($clients as $client)
-                                                                <option value="{{$client->id}}" data-phone="{{$client->responsible_mobile}}">{{$client->name}}</option>
+                                                                    @if($client->id== $shipment->client_id))
+                                                                        <option value="{{$client->id}}" selected="true" data-phone="{{$client->responsible_mobile}}">{{$client->name}}</option>
+                                                                    @else
+                                                                        <option value="{{$client->id}}" data-phone="{{$client->responsible_mobile}}">{{$client->name}}</option>
+                                                                    @endif
                                                                 @endforeach
-
                                                             </select>
-                                                        @endif
-
                                                     </div>
                                                 </div>
 
@@ -218,21 +219,21 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>{{translate('Receiver Name')}}:</label>
-                                                        <input type="text" placeholder="{{translate('Receiver Name')}}" name="Shipment[reciver_name]" class="form-control" />
+                                                        <input type="text" placeholder="{{translate('Receiver Name')}}" name="Shipment[receiver_name]" class="form-control" value="{{ $shipment->receiver_name }}" />
 
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>{{translate('Loading Staff Name')}}:</label>
-                                                        <input type="text" placeholder="{{translate('Loading Staff Name')}}" name="Shipment[reciver_phone]" class="form-control" />
+                                                        <input type="text" placeholder="{{translate('Loading Staff Name')}}" name="Shipment[boy_name]" value="{{ $shipment->boy_name }}" class="form-control" />
 
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>{{translate('Total Docket Number')}}:</label>
-                                                        <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[reciver_address]" class="form-control" />
+                                                        <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" value="{{ $shipment->total_docket }}"/>
 
                                                     </div>
                                                 </div>
@@ -240,22 +241,27 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>{{translate('Origin')}}:</label>
-                                                        <select id="change-state-from" name="Shipment[from_state_id]" class="form-control select-state">
+                                                        <select id="origin" name="Shipment[origin]" class="form-control select-state origin">
                                                             <option value=""></option>
+                                                            @foreach($branchs as $branch)
+                                                                <option @if($branch->id==$shipment->origin) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
+                                                            @endforeach
                                                         </select>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label>{{translate('Destination')}}:</label>
-                                                        <select id="change-state-to" name="Shipment[to_state_id]" class="form-control select-state">
+                                                        <select id="destination" name="Shipment[destination]" class="form-control select-state destination">
                                                             <option value=""></option>
+                                                            @foreach($branchs as $branch)
+                                                                <option @if($branch->id==$shipment->destination) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
+                                                            @endforeach
 
                                                         </select>
                                                     </div>
 
                                                 </div>
-
 
 
                                             </div>
@@ -267,53 +273,43 @@
                                                 <div class="row" id="kt_repeater_1">
                                                     <h2 class="text-left">{{translate('Package Info')}}:</h2>
                                                     <div data-repeater-list="Package" class="col-lg-12">
-                                                        <div data-repeater-item class="row align-items-center" style="margin-top: 15px;padding-bottom: 15px;padding-top: 15px;border-top:1px solid #ccc;border-bottom:1px solid #ccc;">
+                                                        @foreach($shipment->packages as $pack)
+                                                            <div data-repeater-item class="row align-items-center"
+                                                                 style="margin-top: 15px;padding-bottom: 15px;padding-top: 15px;border-top:1px solid #ccc;border-bottom:1px solid #ccc;">
+                                                                <div class="col-md-3">
+                                                                    <label>{{translate('Package description')}}:</label>
+                                                                    <input type="text" placeholder="{{translate('description')}}"
+                                                                           class="form-control" name="description" value="{{$pack->description}}">
+                                                                    <div class="mb-2 d-md-none"></div>
+                                                                </div>
 
 
+                                                                <div class="col-md-3">
 
-                                                            {{-- <div class="col-md-3">
+                                                                    <label>{{translate('Weight')}}:</label>
 
-                                                                <label>{{translate('Package Type')}}:</label>
-                                                                <select class="form-control kt-select2 package-type-select" name="package_id">
-                                                                    <option></option>
-                                                                    @foreach($packages as $package)
-                                                                    <option @if(\App\ShipmentSetting::getVal('def_package_type')==$package->id) selected @endif value="{{$package->id}}">{{$package->name}}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                                <div class="mb-2 d-md-none"></div>
-                                                            </div> --}}
-                                                            <div class="col-md-3">
-                                                                <label>{{translate('Package description')}}:</label>
-                                                                <input type="text" placeholder="{{translate('description')}}" class="form-control" name="description">
-                                                                <div class="mb-2 d-md-none"></div>
-                                                            </div>
+                                                                    <input type="number" min="1" placeholder="{{translate('Weight')}}"
+                                                                           name="weight"
+                                                                           class="form-control weight-listener kt_touchspin_weight"
+                                                                           onchange="calcTotalWeight()" value="{{$pack->weight}}"/>
+                                                                    <div class="mb-2 d-md-none"></div>
+                                                                </div>
 
 
-                                                            <div class="col-md-3">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
 
-                                                                <label>{{translate('Weight')}}:</label>
-
-                                                                <input type="number" min="1" placeholder="{{translate('Weight')}}" name="weight" class="form-control weight-listener kt_touchspin_weight" onchange="calcTotalWeight()" value="1" />
-                                                                <div class="mb-2 d-md-none"></div>
-
-                                                            </div>
-
-
-
-
-
-                                                            <div class="row">
-                                                                <div class="col-md-12">
-
-                                                                    <div>
-                                                                        <br/>
-                                                                        <a href="javascript:;" data-repeater-delete="" class="btn btn-sm font-weight-bolder btn-light-danger delete_item">
-                                                                            <i class="la la-trash-o"></i>{{translate('Delete')}}
-                                                                        </a>
+                                                                        <div>
+                                                                            <br/>
+                                                                            <a href="javascript:;" data-repeater-delete=""
+                                                                               class="btn btn-sm font-weight-bolder btn-light-danger delete_item">
+                                                                                <i class="la la-trash-o"></i>{{translate('Delete')}}
+                                                                            </a>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
+                                                        @endforeach
                                                     </div>
                                                 </div>
                                                 <div class="form-group row">
@@ -332,98 +328,39 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group">
                                                             <label>{{translate('Total Amount')}}:</label>
-                                                            <input id="kt_touchspin_3" placeholder="{{translate('Total Amount')}}" type="text" min="0" class="form-control" value="0" name="Shipment[amount_to_be_collected]" />
+                                                            <input id="kt_touchspin_3" placeholder="{{translate('Total Amount')}}" type="text" min="0" class="form-control" value="{{ $shipment->amount_to_be_collected }}" name="Shipment[amount_to_be_collected]" />
                                                         </div>
                                                     </div>
-
 
                                                     <div class="col-md-6">
                                                         <div class="form-group">
                                                             <label>{{translate('Total Weight')}}:</label>
-                                                            <input id="kt_touchspin_4" placeholder="{{translate('Total Weight')}}" type="text" min="1" class="form-control total-weight" value="1" name="Shipment[total_weight]" />
+                                                            <input id="kt_touchspin_4" placeholder="{{translate('Total Weight')}}" type="text" min="1" class="form-control total-weight" value="{{ $shipment->total_weight }}" name="Shipment[total_weight]" />
                                                         </div>
                                                     </div>
 
                                                 </div>
-
-
-
-
+                                            </div>
                                             </div>
 
-                                        </div>
-
-
-
-
-
                                         <div class="mb-0 text-right form-group">
-                                            <button type="button" class="btn btn-sm btn-primary" onclick="get_estimation_cost()">{{translate('Save')}}</button>
-
-
-
-
+                                            <button type="submit" class="btn btn-sm btn-primary" >{{translate('Save')}}</button>
                                         </div>
                                     </div>
+                                </div>
                             </form>
 
                         </div>
                     </div>
 
-                    @endsection
+@endsection
 
 
-                    @section('script')
-                    <script src="{{ static_asset('assets/dashboard/js/geocomplete/jquery.geocomplete.js') }}"></script>
-                    <script src="//maps.googleapis.com/maps/api/js?libraries=places&key={{$checked_google_map->key}}"></script>
+@section('script')
 
                     <script type="text/javascript">
 
-                        // Map Address For Receiver
-                        $('.address-receiver').each(function(){
-                            var address = $(this);
-                            address.geocomplete({
-                                map: ".map_canvas.map-receiver",
-                                mapOptions: {
-                                    zoom: 8,
-                                    center: { lat: -34.397, lng: 150.644 },
-                                },
-                                markerOptions: {
-                                    draggable: true
-                                },
-                                details: ".location-receiver",
-                                detailsAttribute: 'data-receiver',
-                                autoselect: true,
-                                restoreValueAfterBlur: true,
-                            });
-                            address.bind("geocode:dragged", function(event, latLng){
-                                $("input[data-receiver=lat]").val(latLng.lat());
-                                $("input[data-receiver=lng]").val(latLng.lng());
-                            });
-                        });
 
-                        // Map Address For Client
-                        $('.address-client').each(function(){
-                            var address = $(this);
-                            address.geocomplete({
-                                map: ".map_canvas.map-client",
-                                mapOptions: {
-                                    zoom: 8,
-                                    center: { lat: -34.397, lng: 150.644 },
-                                },
-                                markerOptions: {
-                                    draggable: true
-                                },
-                                details: ".location-client",
-                                detailsAttribute: 'data-client',
-                                autoselect: true,
-                                restoreValueAfterBlur: true,
-                            });
-                            address.bind("geocode:dragged", function(event, latLng){
-                                $("input[data-client=lat]").val(latLng.lat());
-                                $("input[data-client=lng]").val(latLng.lng());
-                            });
-                        });
 
                         {{-- function haversine_distance() {
                           var R = 3958.8; // Radius of the Earth in miles
@@ -819,21 +756,15 @@
                             FormValidation.formValidation(
                                 document.getElementById('kt_form_1'), {
                                     fields: {
-                                        "Shipment[type]": {
+
+                                        "Shipment[date]": {
                                             validators: {
                                                 notEmpty: {
                                                     message: '{{translate("This is required!")}}'
                                                 }
                                             }
                                         },
-                                        "Shipment[shipping_date]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[branch_id]": {
+                                        "Shipment[origin]": {
                                             validators: {
                                                 notEmpty: {
                                                     message: '{{translate("This is required!")}}'
@@ -856,63 +787,36 @@
                                                 }
                                             }
                                         },
-                                        "Shipment[client_address]": {
+
+                                        "Shipment[boy_name]": {
                                             validators: {
                                                 notEmpty: {
                                                     message: '{{translate("This is required!")}}'
                                                 }
                                             }
                                         },
-                                        "Shipment[client_phone]": {
+                                        "Shipment[total_docket]": {
                                             validators: {
                                                 notEmpty: {
                                                     message: '{{translate("This is required!")}}'
                                                 }
                                             }
                                         },
-                                        "Shipment[payment_type]": {
+                                        "Shipment[destination]": {
                                             validators: {
                                                 notEmpty: {
                                                     message: '{{translate("This is required!")}}'
                                                 }
                                             }
                                         },
-                                        "Shipment[payment_method_id]": {
+                                        "Shipment[receiver_name]": {
                                             validators: {
                                                 notEmpty: {
                                                     message: '{{translate("This is required!")}}'
                                                 }
                                             }
                                         },
-                                        "Shipment[tax]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[insurance]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[shipping_cost]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[delivery_time]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[delivery_time]": {
+                                        "Shipment[amount_to_be_collected]": {
                                             validators: {
                                                 notEmpty: {
                                                     message: '{{translate("This is required!")}}'
@@ -926,79 +830,13 @@
                                                 }
                                             }
                                         },
-                                        "Shipment[from_country_id]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[to_country_id]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[from_state_id]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[to_state_id]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[from_area_id]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[to_area_id]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[reciver_name]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[reciver_phone]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Shipment[reciver_address]": {
-                                            validators: {
-                                                notEmpty: {
-                                                    message: '{{translate("This is required!")}}'
-                                                }
-                                            }
-                                        },
-                                        "Package[0][package_id]": {
+                                        "Shipment[docket][0]": {
                                             validators: {
                                                 notEmpty: {
                                                     message: '{{translate("This is required!")}}'
                                                 }
                                             }
                                         }
-
-
-
                                     },
 
 

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PRSExportExcel;
+use App\Models\Manifest;
+use App\Models\PRS;
 use App\Models\PRSPackage;
 use Auth;
 use App\Area;
@@ -11,13 +14,35 @@ use App\Cost;
 use App\User;
 use App\Http\Controllers\Controller;
 use App\Http\Helpers\ShipmentActionHelper;
+use App\Http\Helpers\StatusManagerHelper;
+use App\Http\Helpers\TransactionHelper;
+use App\Mission;
+use App\Models\Country;
+use App\Package;
+use App\PackageShipment;
 use App\Shipment;
-
+use App\ShipmentMission;
+use App\ShipmentSetting;
+use App\Http\Helpers\MissionPRNG;
+use App\Http\Helpers\ShipmentPRNG;
 use Excel;
 use App\BusinessSetting;
+use App\State;
+use App\Transaction;
+use App\ShipmentReason;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Milon\Barcode\DNS1D;
+use function Psy\sh;
+use App\Events\CreateMission;
+use App\Events\AddShipment;
+use App\Events\UpdateShipment;
+use App\Events\UpdateMission;
+use App\Events\ShipmentAction;
+use App\AddressClient;
+use App\Http\Helpers\UserRegistrationHelper;
 use Carbon\Carbon;
+use App\Exports\ShipmentsExportExcel;
 
 class ManifestController extends Controller
 {
@@ -28,7 +53,7 @@ class ManifestController extends Controller
      */
     public function index(Request $request )
     {
-        $shipments = new PRS();
+        $shipments = new Manifest();
         $type = null;
         $sort_by = null;
 
@@ -45,13 +70,13 @@ class ManifestController extends Controller
         $shipments = $shipments->orderBy('client_id')->orderBy('id','DESC')->paginate(20);
         $actions = new ShipmentActionHelper();
         $actions = $actions->get('all');
-        $page_name = translate('All PRS');
+        $page_name = translate('All Manifest');
         $status = 'all';
         if($request->is('api/*')){
             return  response()->json($shipments);
         }
 
-        return view('backend.prs.index', compact('shipments', 'page_name', 'type', 'actions', 'status' , 'sort_by'));
+        return view('backend.manifest.index', compact('shipments', 'page_name', 'type', 'actions', 'status' , 'sort_by'));
     }
 
 
@@ -66,7 +91,7 @@ class ManifestController extends Controller
     {
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.prs.create', compact('branchs', 'clients'));
+        return view('backend.manifest.create', compact('branchs', 'clients'));
     }
 
     /**
@@ -80,27 +105,34 @@ class ManifestController extends Controller
 
         try {
             DB::beginTransaction();
-            $model = $this->storeShipment($request);
+            $model = new Manifest();
+            $model->fill($_POST['Shipment']);
+            $model->docket = implode(',',$request->Shipment['docket']);
+            $model->code = rand(1,9999);
+            if (!$model->save()) {
+                return response()->json(['message' => new \Exception()] );
+            }
+            // $model = $this->storeShipment($request);
+
             DB::commit();
 
             $counter = 0;
             if (isset($_POST['Package'])) {
                 if (!empty($_POST['Package'])) {
-                    if (isset($_POST['Package'][$counter]['package_id'])) {
-                        foreach ($_POST['Package'] as $package) {
-                            $package_shipment = new PRSPackage();
-                            $package_shipment->fill($package);
-                            $package_shipment->foreign_id = $model->id;
-                            if (!$package_shipment->save()) {
-                                throw new \Exception();
-                            }
+                    foreach ($_POST['Package'] as $package) {
+                        $package_shipment = new PRSPackage();
+                        $package_shipment->fill($package);
+                        $package_shipment->foreign_id = $model->id;
+                        $package_shipment->type = 3;
+                        if (!$package_shipment->save()) {
+                            throw new \Exception();
                         }
                     }
                 }
             }
 
-            flash(translate("PRS added successfully"))->success();
-            return redirect()->route('admin.prs.show', $model->id);
+            flash(translate("Manifest added successfully"))->success();
+            return redirect()->route('admin.manifest.show', $model->id);
         } catch (\Exception $e) {
             DB::rollback();
             print_r($e->getMessage());
@@ -121,17 +153,17 @@ class ManifestController extends Controller
      */
     public function show($id)
     {
-        $shipment = PRS::find($id);
-        return view('backend.prs.show', compact('shipment'));
+        $shipment = Manifest::find($id);
+        return view('backend.manifest.show', compact('shipment'));
     }
 
     public function prints($shipment, $type = 'invoice')
     {
-        $shipment = PRS::find($shipment);
+        $shipment = Manifest::find($shipment);
         if($type == 'label'){
-            return view('backend.prs.print_label', compact('shipment'));
+            return view('backend.manifest.print_label', compact('shipment'));
         }else{
-            return view('backend.prs.print', compact('shipment'));
+            return view('backend.manifest.print', compact('shipment'));
         }
     }
 
@@ -145,10 +177,10 @@ class ManifestController extends Controller
     public function edit($id)
     {
 
-        $shipment = PRS::find($id);
+        $shipment = Manifest::find($id);
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.prs.edit', compact('branchs', 'clients', 'shipment'));
+        return view('backend.manifest.edit', compact('branchs', 'clients', 'shipment'));
     }
 
     /**
@@ -160,10 +192,12 @@ class ManifestController extends Controller
      */
     public function update(Request $request, $shipment)
     {
+
         try {
             DB::beginTransaction();
-            $model = PRS::find($shipment);
+            $model = Manifest::find($shipment);
             $model->fill($_POST['Shipment']);
+            $model->docket = implode(',',$request->Shipment['docket']);
 
             if (!$model->save()) {
                 throw new \Exception();
@@ -172,25 +206,27 @@ class ManifestController extends Controller
                 $pack->delete();
             }
             $counter = 0;
+            $all = PRSPackage::where('type',3)->where('foreign_id',$model->id)->delete();
             if (isset($_POST['Package'])) {
                 if (!empty($_POST['Package'])) {
-                    if (isset($_POST['Package'][$counter]['package_id'])) {
-                        foreach ($_POST['Package'] as $package) {
-                            $package_shipment = new PRSPackage();
-                            $package_shipment->fill($package);
-                            $package_shipment->foreign_id = $model->id;
-                            if (!$package_shipment->save()) {
-                                throw new \Exception();
-                            }
+
+                    foreach ($_POST['Package'] as $package) {
+                        $package_shipment = new PRSPackage();
+                        $package_shipment->fill($package);
+                        $package_shipment->foreign_id = $model->id;
+                        $package_shipment->type = 3;
+                        if (!$package_shipment->save()) {
+                            throw new \Exception();
                         }
+                        $counter++;
                     }
                 }
             }
 
 //            event(new UpdateShipment($model));
             DB::commit();
-            flash(translate("PRS Updated successfully"))->success();
-            $route = 'admin.prs.index';
+            flash(translate("Manifest Updated successfully"))->success();
+            $route = 'admin.manifest.index';
             return execute_redirect($request, $route);
         } catch (\Exception $e) {
             DB::rollback();
@@ -208,7 +244,7 @@ class ManifestController extends Controller
     {
         $shipment = new Shipment;
         $columns = $shipment->getTableColumns();
-        return view('backend.prs.import',['columns'=>$columns]);
+        return view('backend.manifest.import',['columns'=>$columns]);
     }
 
 
@@ -225,7 +261,7 @@ class ManifestController extends Controller
 
     public function shipmentCalc()
     {
-        return view('backend.prs.shipment_calc');
+        return view('backend.manifest.shipment_calc');
     }
 
     public function exportShipments($status)
@@ -240,4 +276,8 @@ class ManifestController extends Controller
 
         return Excel::download( new PRSExportExcel($status) , $excelName );
     }
+
+
+
+
 }

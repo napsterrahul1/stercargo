@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\PRSExportExcel;
-use App\Models\Loading;
+use App\Models\THC;
 use App\Models\PRS;
 use App\Models\PRSPackage;
 use Auth;
@@ -44,7 +44,7 @@ use App\Http\Helpers\UserRegistrationHelper;
 use Carbon\Carbon;
 use App\Exports\ShipmentsExportExcel;
 
-class LoadingController extends Controller
+class THCController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -53,7 +53,7 @@ class LoadingController extends Controller
      */
     public function index(Request $request )
     {
-        $shipments = new Loading();
+        $shipments = new THC();
         $type = null;
         $sort_by = null;
 
@@ -70,13 +70,13 @@ class LoadingController extends Controller
         $shipments = $shipments->orderBy('client_id')->orderBy('id','DESC')->paginate(20);
         $actions = new ShipmentActionHelper();
         $actions = $actions->get('all');
-        $page_name = translate('All Loading Sheet');
+        $page_name = translate('All THC Sheet');
         $status = 'all';
         if($request->is('api/*')){
             return  response()->json($shipments);
         }
 
-        return view('backend.loading.index', compact('shipments', 'page_name', 'type', 'actions', 'status' , 'sort_by'));
+        return view('backend.thc.index', compact('shipments', 'page_name', 'type', 'actions', 'status' , 'sort_by'));
     }
 
 
@@ -91,7 +91,7 @@ class LoadingController extends Controller
     {
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.loading.create', compact('branchs', 'clients'));
+        return view('backend.thc.create', compact('branchs', 'clients'));
     }
 
     /**
@@ -106,7 +106,7 @@ class LoadingController extends Controller
 
         try {
             DB::beginTransaction();
-            $model = new Loading();
+            $model = new THC();
             $model->fill($_POST['Shipment']);
             $model->docket = implode(',',$request->Shipment['docket']);
             $model->code = rand(1,9999);
@@ -134,7 +134,7 @@ class LoadingController extends Controller
             }
 
             flash(translate("PRS added successfully"))->success();
-            return redirect()->route('admin.loading.show', $model->id);
+            return redirect()->route('admin.thc.show', $model->id);
         } catch (\Exception $e) {
             DB::rollback();
             print_r($e->getMessage());
@@ -155,17 +155,17 @@ class LoadingController extends Controller
      */
     public function show($id)
     {
-        $shipment = Loading::find($id);
-        return view('backend.loading.show', compact('shipment'));
+        $shipment = THC::find($id);
+        return view('backend.thc.show', compact('shipment'));
     }
 
     public function prints($shipment, $type = 'invoice')
     {
-        $shipment = Loading::find($shipment);
+        $shipment = THC::find($shipment);
         if($type == 'label'){
-            return view('backend.loading.print_label', compact('shipment'));
+            return view('backend.thc.print_label', compact('shipment'));
         }else{
-            return view('backend.loading.print', compact('shipment'));
+            return view('backend.thc.print', compact('shipment'));
         }
     }
 
@@ -179,10 +179,10 @@ class LoadingController extends Controller
     public function edit($id)
     {
 
-        $shipment = Loading::find($id);
+        $shipment = THC::find($id);
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.loading.edit', compact('branchs', 'clients', 'shipment'));
+        return view('backend.thc.edit', compact('branchs', 'clients', 'shipment'));
     }
 
     /**
@@ -197,7 +197,7 @@ class LoadingController extends Controller
 
         try {
             DB::beginTransaction();
-            $model = Loading::find($shipment);
+            $model = THC::find($shipment);
             $model->fill($_POST['Shipment']);
             $model->docket = implode(',',$request->Shipment['docket']);
             if (!$model->save()) {
@@ -227,7 +227,7 @@ class LoadingController extends Controller
 //            event(new UpdateShipment($model));
             DB::commit();
             flash(translate("PRS Updated successfully"))->success();
-            $route = 'admin.loading.index';
+            $route = 'admin.thc.index';
             return execute_redirect($request, $route);
         } catch (\Exception $e) {
             DB::rollback();

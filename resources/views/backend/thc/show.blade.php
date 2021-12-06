@@ -4,7 +4,7 @@ $d = new DNS1D();
 ?>
 @extends('backend.layouts.app')
 
-@section('sub_title'){{translate('manifest ')}} {{$shipment->code}}@endsection
+@section('sub_title'){{translate('Loading Sheet')}} {{$shipment->code}}@endsection
 @section('subheader')
     <!--begin::Subheader-->
     <div class="py-2 subheader py-lg-6 subheader-solid" id="kt_subheader">
@@ -14,7 +14,7 @@ $d = new DNS1D();
                 <!--begin::Page Heading-->
                 <div class="flex-wrap mr-5 d-flex align-items-baseline">
                     <!--begin::Page Title-->
-                    <h5 class="my-1 mr-5 text-dark font-weight-bold">{{translate('manifest ')}} {{$shipment->code}}</h5>
+                    <h5 class="my-1 mr-5 text-dark font-weight-bold">{{translate('Loading Sheet')}} {{$shipment->code}}</h5>
                     <!--end::Page Title-->
                     <!--begin::Breadcrumb-->
                     <ul class="p-0 my-2 mr-5 breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold font-size-sm">
@@ -49,7 +49,7 @@ $d = new DNS1D();
                     <div class="pb-10 d-flex justify-content-between pb-md-20 flex-column flex-md-row">
                         <div class="px-0 d-flex flex-column align-items-md-start">
                         <span class="d-flex flex-column align-items-md-start">
-                            <h1 class="mb-10 display-4 font-weight-boldest">{{translate('manifest ')}}: {{$shipment->code}}</h1>
+                            <h1 class="mb-10 display-4 font-weight-boldest">{{translate('Loading Sheet')}}: {{$shipment->code}}</h1>
                             @if($shipment->order_id != null)
                                 <span><span class="font-weight-bolder opacity-70">{{translate('Order ID')}}:</span> {{$shipment->order_id}}</span>
                             @endif
@@ -179,11 +179,11 @@ $d = new DNS1D();
                     <div class="d-flex justify-content-between">
 
 
-                        <a href="{{route('admin.shipments.print', array($shipment->id, 'label'))}}" class="btn btn-light-primary font-weight-bold" target="_blank">{{translate('Print Label')}}<i class="ml-2 la la-box-open"></i></a>
-                        <a href="{{route('admin.shipments.print', array($shipment->id, 'invoice'))}}" class="btn btn-light-primary font-weight-bold" target="_blank">{{translate('Print Invoice')}}<i class="ml-2 la la-file-invoice-dollar"></i></a>
+                        <a href="{{route('admin.thc.print', array($shipment->id, 'label'))}}" class="btn btn-light-primary font-weight-bold" target="_blank">{{translate('Print Label')}}<i class="ml-2 la la-box-open"></i></a>
+                        <a href="{{route('admin.thc.print', array($shipment->id, 'invoice'))}}" class="btn btn-light-primary font-weight-bold" target="_blank">{{translate('Print Invoice')}}<i class="ml-2 la la-file-invoice-dollar"></i></a>
 
                         @if(Auth::user()->user_type == 'admin')
-                            <a href="{{route('admin.manifest.edit', $shipment->id)}}" class="px-6 py-3 btn btn-light-info btn-sm font-weight-bolder font-size-sm">{{translate('Edit manifest')}}</a>
+                            <a href="{{route('admin.thc.edit', $shipment->id)}}" class="px-6 py-3 btn btn-light-info btn-sm font-weight-bolder font-size-sm">{{translate('Edit Loading Sheet')}}</a>
                         @endif
                     </div>
                 </div>

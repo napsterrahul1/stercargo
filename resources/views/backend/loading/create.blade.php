@@ -162,7 +162,7 @@
                                             }
 
                                         @endphp
-                                        <input type="text" placeholder="{{translate('loading Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[shipping_date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
+                                        <input type="text" placeholder="{{translate('loading Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
                                         <div class="input-group-append">
                                             <span class="input-group-text">
                                                 <i class="la la-calendar"></i>
@@ -177,7 +177,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Docket Number')}}:</label>
-                                    <select class="form-control kt-select2 select-branch" name="Shipment[branch_id]" multiple>
+                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket][]" multiple>
                                         <option></option>
                                         @foreach($branchs as $branch)
                                             @if($user_type == 'branch')
@@ -217,21 +217,21 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Receiver Name')}}:</label>
-                                    <input type="text" placeholder="{{translate('Receiver Name')}}" name="Shipment[reciver_name]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Receiver Name')}}" name="Shipment[receiver_name]" class="form-control" />
 
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Loading Staff Name')}}:</label>
-                                    <input type="text" placeholder="{{translate('Loading Staff Name')}}" name="Shipment[reciver_phone]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Loading Staff Name')}}" name="Shipment[boy_name]" class="form-control" />
 
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Total Docket Number')}}:</label>
-                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[reciver_address]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
 
                                 </div>
                             </div>
@@ -239,16 +239,22 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Origin')}}:</label>
-                                    <select id="change-state-from" name="Shipment[from_state_id]" class="form-control select-state">
+                                    <select id="origin" name="Shipment[origin]" class="form-control select-state origin">
                                         <option value=""></option>
+                                        @foreach($branchs as $branch)
+                                                <option value="{{$branch->id}}">{{$branch->name}}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Destination')}}:</label>
-                                    <select id="change-state-to" name="Shipment[to_state_id]" class="form-control select-state">
+                                    <select id="destination" name="Shipment[destination]" class="form-control select-state destination">
                                         <option value=""></option>
+                                        @foreach($branchs as $branch)
+                                            <option value="{{$branch->id}}">{{$branch->name}}</option>
+                                        @endforeach
 
                                     </select>
                                 </div>
@@ -344,24 +350,10 @@
                                 </div>
 
                             </div>
-
-
-
-
                         </div>
-
                     </div>
-
-
-
-
-
                     <div class="mb-0 text-right form-group">
-                        <button type="button" class="btn btn-sm btn-primary" onclick="get_estimation_cost()">{{translate('Save')}}</button>
-
-
-
-
+                        <button type="submit" class="btn btn-sm btn-primary">{{translate('Save')}}</button>
                     </div>
                 </div>
         </form>
@@ -373,228 +365,12 @@
 
 
 @section('script')
-<script src="{{ static_asset('assets/dashboard/js/geocomplete/jquery.geocomplete.js') }}"></script>
-<script src="//maps.googleapis.com/maps/api/js?libraries=places&key={{$checked_google_map->key}}"></script>
 
 <script type="text/javascript">
-
-    // Map Address For Receiver
-    $('.address-receiver').each(function(){
-        var address = $(this);
-        address.geocomplete({
-            map: ".map_canvas.map-receiver",
-            mapOptions: {
-                zoom: 8,
-                center: { lat: -34.397, lng: 150.644 },
-            },
-            markerOptions: {
-                draggable: true
-            },
-            details: ".location-receiver",
-            detailsAttribute: 'data-receiver',
-            autoselect: true,
-            restoreValueAfterBlur: true,
-        });
-        address.bind("geocode:dragged", function(event, latLng){
-            $("input[data-receiver=lat]").val(latLng.lat());
-            $("input[data-receiver=lng]").val(latLng.lng());
-        });
-    });
-
-    // Map Address For Client
-    $('.address-client').each(function(){
-        var address = $(this);
-        address.geocomplete({
-            map: ".map_canvas.map-client",
-            mapOptions: {
-                zoom: 8,
-                center: { lat: -34.397, lng: 150.644 },
-            },
-            markerOptions: {
-                draggable: true
-            },
-            details: ".location-client",
-            detailsAttribute: 'data-client',
-            autoselect: true,
-            restoreValueAfterBlur: true,
-        });
-        address.bind("geocode:dragged", function(event, latLng){
-            $("input[data-client=lat]").val(latLng.lat());
-            $("input[data-client=lng]").val(latLng.lng());
-        });
-    });
-
-    {{-- function haversine_distance() {
-      var R = 3958.8; // Radius of the Earth in miles
-      var rlat1 = $("input[data-client=lat]").val() * (Math.PI/180); // Convert degrees to radians
-      var rlat2 = $("input[data-receiver=lat]").val() * (Math.PI/180); // Convert degrees to radians
-      var difflat = rlat2-rlat1; // Radian difference (latitudes)
-      var difflon = ($("input[data-receiver=lng]").val()-$("input[data-client=lng]").val()) * (Math.PI/180); // Radian difference (longitudes)
-
-      var d = 2 * R * Math.asin(Math.sqrt(Math.sin(difflat/2)*Math.sin(difflat/2)+Math.cos(rlat1)*Math.cos(rlat2)*Math.sin(difflon/2)*Math.sin(difflon/2)));
-      return d;
-
-      var distance = haversine_distance();
-      console.log(distance);
-    } --}}
-
-    // Get Addressess After Select Client
     function selectIsTriggered()
     {
-         getAdressess(document.getElementById("client-id").value);
+//         getAdressess(document.getElementById("client-id").value);
     }
-
-    // Ajax Get Address With Cliet Id
-    function getAdressess(client_id)
-    {
-        var id = client_id;
-
-        $.get("{{route('admin.shipments.get-addressess-ajax')}}?client_id=" + id, function(data) {
-            if(data.length != 0){
-                $('select[name ="Shipment[client_address]"]').empty();
-                $('select[name ="Shipment[client_address]"]').append('<option value=""></option>');
-                for (let index = 0; index < data.length; index++) {
-                    const element = data[index];
-                    $('select[name ="Shipment[client_address]"]').append('<option value="' + element['id'] + '">' + element['address'] + '</option>');
-                }
-
-                $('.select-address').select2({
-                    placeholder: "Choose Address",
-                })
-                @if($user_type == 'admin' || $user_type == 'customer' || in_array('1005', $staff_permission) )
-                    .on('select2:open', () => {
-
-                        $('.toRemoveLi').remove();
-
-                        $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;' class='toRemoveLi'><a style="width: 100%" onclick="openAddressDiv()"
-                            class="btn btn-primary" >+ {{translate('Add New Address')}}</a>
-                            </li>`);
-                    });
-                @endif
-            }else{
-                $('select[name ="Shipment[client_address]"]').empty();
-                $('.select-address').select2({
-                    placeholder: "No Addressess Found",
-                })
-                @if($user_type == 'admin' || $user_type == 'customer' || in_array('1005', $staff_permission) )
-                    .on('select2:open', () => {
-
-                        $('.toRemoveLi').remove();
-
-                        $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;' class='toRemoveLi'><a style="width: 100%" onclick="openAddressDiv()"
-                            class="btn btn-primary" >+ {{translate('Add New Address')}}</a>
-                            </li>`);
-                    });
-                @endif
-            }
-        });
-    }
-
-    // Ajax Get Address With Client logged in
-    @if($user_type == 'customer')
-        getAdressess({{$user_client}});
-    @endif
-
-
-    $('#client-addressess').change(function() {
-        var id = $(this).val();
-        $.get("{{route('client.get.one.address')}}?address_id=" + id, function(data) {
-            $("#change-country").val(data[0]['country_id']).change();
-            setTimeout(function(){
-                $("#change-state-from").val(data[0]['state_id']).change();
-                if(data[0]['area_id'] != null || data[0]['area_id'] != ""){
-                    setTimeout(function(){
-                        $("#from_area_id").val(data[0]['area_id']).change();
-                     }, 800);
-                }
-             }, 800);
-        });
-    });
-
-    // Ajax Add New Address For Client
-    function AddNewClientAddress()
-    {
-        @if($user_type == 'customer')
-            var id                    = {{$user_client}};
-        @else
-            var id                    = document.getElementById("client-id").value;
-        @endif
-        var address                   = document.getElementsByName("client_address")[0].value;
-        var country = $('select[name ="country_id"]').val();
-        var state = $('select[name ="state_id"]').val();
-        var area = $('select[name ="area_id"]').val();
-
-        @if($checked_google_map->value == 1)
-            var client_street_address_map = document.getElementsByName("client_street_address_map")[0].value;
-            var client_lat                = document.getElementsByName("client_lat")[0].value;
-            var client_lng                = document.getElementsByName("client_lng")[0].value;
-            var client_url                = document.getElementsByName("client_url")[0].value;
-            if(address != "" && country != "" && state != "" && address != null && country != null && state != null )
-            {
-                $.post( "{{route('client.add.new.address')}}",
-                {
-                    client_id: parseInt(id),
-                    address: address,
-                    client_street_address_map: client_street_address_map,
-                    client_lat: client_lat,
-                    client_lng: client_lng,
-                    client_url: client_url,
-                    country: country,
-                    state: state,
-                    area: area
-                } , function(data){
-                    $('select[name ="Shipment[client_address]"]').empty();
-                    for (let index = 0; index < data.length; index++) {
-                        const element = data[index];
-                        $('select[name ="Shipment[client_address]"]').append('<option value="' + element['id'] + '">' + element['address'] + '</option>');
-                    }
-                    document.getElementsByName("client_address")[0].value            = "";
-                    document.getElementsByName("client_street_address_map")[0].value = "";
-                });
-            }else{
-                Swal.fire("{{translate('Please Enter All Reqired Fields')}}", "", "error");
-            }
-        @else
-            if(address != "" && country != "" && state != "" && address != null && country != null && state != null )
-            {
-                $.post( "{{route('client.add.new.address')}}",
-                {
-                    client_id: parseInt(id),
-                    address: address,
-                    country: country,
-                    state: state,
-                    area: area
-                } , function(data){
-                    $('select[name ="Shipment[client_address]"]').empty();
-                    for (let index = 0; index < data.length; index++) {
-                        const element = data[index];
-                        $('select[name ="Shipment[client_address]"]').append('<option value="' + element['id'] + '">' + element['address'] + '</option>');
-                    }
-                    document.getElementsByName("client_address")[0].value            = "";
-                    var country = $('select[name ="country_id"]').val();
-                    var state = $('select[name ="state_id"]').val();
-                    var area = $('select[name ="area_id"]').val();
-                });
-            }else{
-                Swal.fire("{{translate('Please Enter All Reqired Fields')}}", "", "error");
-            }
-        @endif
-    }
-
-
-    function openAddressDiv()
-    {
-        $( "#show_address_div" ).slideDown( "slow", function() {
-            // Animation complete.
-        });
-    }
-    function closeAddressDiv()
-    {
-        $( "#show_address_div" ).slideUp( "slow", function() {
-            // Animation complete.
-        });
-    }
-
     var inputs = document.getElementsByTagName('input');
 
     for (var i = 0; i < inputs.length; i++) {
@@ -621,34 +397,27 @@
     @endif
 
     $('.select-client').change(function(){
-        var client_phone = $(this).find(':selected').data('phone');
-        document.getElementById("client_phone").value = client_phone;
-    })
+//        var client_phone = $(this).find(':selected').data('phone');
+//        document.getElementById("client_phone").value = client_phone;
+    });
 
 
-
-
-    $('.delivery-time').select2({
-        placeholder: "Delivery Time",
-    })
-    @if($user_type == 'admin' || in_array('1110', $staff_permission) )
-        .on('select2:open', () => {
-            $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.deliveryTime.create')}}?redirect=admin.shipments.create"
-                class="btn btn-primary" >+ {{translate('Add Delivery Time')}}</a>
-                </li>`);
-        });
-    @endif
-
+    $('.origin').select2({
+        placeholder: "Select Origin",
+    });
+    $('.destination').select2({
+            placeholder: "Select Destination",
+    });
     $('.select-branch').select2({
-            placeholder: "Select Docket",
+        placeholder: "Select Docket",
     })
-    @if($user_type == 'admin' || in_array('1006', $staff_permission) )
-        .on('select2:open', () => {
-            $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.branchs.create')}}?redirect=admin.shipments.create"
-                class="btn btn-primary" >+ {{translate('Add New Docket')}}</a>
-                </li>`);
-        });
-    @endif
+    {{--@if($user_type == 'admin' || in_array('1006', $staff_permission) )--}}
+        {{--.on('select2:open', () => {--}}
+            {{--$(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.branchs.create')}}?redirect=admin.shipments.create"--}}
+                {{--class="btn btn-primary" >+ {{translate('Add New Docket')}}</a>--}}
+                {{--</li>`);--}}
+        {{--});--}}
+    {{--@endif--}}
 
 
 
@@ -676,23 +445,7 @@
             startDate: new Date(),
         });
         $( document ).ready(function() {
-            $('.package-type-select').select2({
-                placeholder: "Package Type",
-                language: {
-                noResults: function() {
-                    @if($user_type == 'admin' || in_array('1105', $staff_permission) )
-                        return `<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.packages.create')}}?redirect=admin.shipments.create"
-                        class="btn btn-primary" >Manage {{translate('Packages')}}</a>
-                        </li>`;
-                    @else
-                        return ``;
-                    @endif
-                },
-                },
-                escapeMarkup: function(markup) {
-                return markup;
-                },
-            });
+
         });
 
 
@@ -703,24 +456,9 @@
 
             show: function() {
                 $(this).slideDown();
-
-
-
-                $('.dimensions_r').TouchSpin({
-                    buttondown_class: 'btn btn-secondary',
-                    buttonup_class: 'btn btn-secondary',
-
-                    min: 1,
-                    max: 1000000000,
-                    stepinterval: 50,
-                    maxboostedstep: 10000000,
-                    initval: 1,
-                });
-
                 $('.kt_touchspin_weight').TouchSpin({
                     buttondown_class: 'btn btn-secondary',
                     buttonup_class: 'btn btn-secondary',
-
                     min: 1,
                     max: 1000000000,
                     stepinterval: 50,
@@ -728,16 +466,7 @@
                     initval: 1,
                     prefix: 'Kg'
                 });
-                $('.kt_touchspin_qty').TouchSpin({
-                    buttondown_class: 'btn btn-secondary',
-                    buttonup_class: 'btn btn-secondary',
 
-                    min: 1,
-                    max: 1000000000,
-                    stepinterval: 50,
-                    maxboostedstep: 10000000,
-                    initval: 1,
-                });
                 calcTotalWeight();
             },
 
@@ -751,16 +480,7 @@
             $('.total-weight').val("{{translate('Calculated...')}}");
             setTimeout(function(){ calcTotalWeight(); }, 500);
         });
-        $('#kt_touchspin_2, #kt_touchspin_2_2').TouchSpin({
-            buttondown_class: 'btn btn-secondary',
-            buttonup_class: 'btn btn-secondary',
 
-            min: -1000000000,
-            max: 1000000000,
-            stepinterval: 50,
-            maxboostedstep: 10000000,
-            prefix: '%'
-        });
         $('#kt_touchspin_3').TouchSpin({
             buttondown_class: 'btn btn-secondary',
             buttonup_class: 'btn btn-secondary',
@@ -793,46 +513,21 @@
             initval: 1,
             prefix: 'Kg'
         });
-        $('.kt_touchspin_qty').TouchSpin({
-            buttondown_class: 'btn btn-secondary',
-            buttonup_class: 'btn btn-secondary',
 
-            min: 1,
-            max: 1000000000,
-            stepinterval: 50,
-            maxboostedstep: 10000000,
-            initval: 1,
-        });
-        $('.dimensions_r').TouchSpin({
-            buttondown_class: 'btn btn-secondary',
-            buttonup_class: 'btn btn-secondary',
-
-            min: 1,
-            max: 1000000000,
-            stepinterval: 50,
-            maxboostedstep: 10000000,
-            initval: 1,
-        });
 
 
         FormValidation.formValidation(
             document.getElementById('kt_form_1'), {
                 fields: {
-                    "Shipment[type]": {
+
+                    "Shipment[date]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[shipping_date]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[branch_id]": {
+                    "Shipment[origin]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
@@ -855,63 +550,36 @@
                             }
                         }
                     },
-                    "Shipment[client_address]": {
+
+                    "Shipment[boy_name]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[client_phone]": {
+                    "Shipment[total_docket]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[payment_type]": {
+                    "Shipment[destination]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[payment_method_id]": {
+                    "Shipment[receiver_name]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     },
-                    "Shipment[tax]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[insurance]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[shipping_cost]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[delivery_time]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[delivery_time]": {
+                    "Shipment[amount_to_be_collected]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
@@ -925,79 +593,13 @@
                             }
                         }
                     },
-                    "Shipment[from_country_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[to_country_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[from_state_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[to_state_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[from_area_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[to_area_id]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[reciver_name]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[reciver_phone]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Shipment[reciver_address]": {
-                        validators: {
-                            notEmpty: {
-                                message: '{{translate("This is required!")}}'
-                            }
-                        }
-                    },
-                    "Package[0][package_id]": {
+                    "Shipment[docket][0]": {
                         validators: {
                             notEmpty: {
                                 message: '{{translate("This is required!")}}'
                             }
                         }
                     }
-
-
-
                 },
 
 

@@ -68,12 +68,26 @@ class Loading extends Model
     const CLIENT_STATUS_DELIVERED = 7;
     const CLIENT_STATUS_SUPPLIED = 8;
 
-    protected $table = 'prs';
-    protected $fillable = ['date','vehicle_number','vendor_name','hire_amount','docket','client_id','receiver_name','boy_name','total_docket','amount_to_be_collected','total_weight'];
+    protected $table = 'loading';
+    protected $fillable = ['date','docket','client_id','receiver_name','boy_name','total_docket','amount_to_be_collected','total_weight','origin','destination'];
 
     public function client()
     {
         return $this->hasOne('App\Client', 'id', 'client_id');
+    }
+
+    public function origins()
+    {
+        return $this->hasOne('App\Branch', 'id', 'origin');
+    }
+    public function destinations()
+    {
+        return $this->hasOne('App\Branch', 'id', 'destination');
+    }
+
+    public function packages()
+    {
+        return $this->hasMany('App\Models\PRSPackage','foreign_id')->where('type','=', 2);
     }
     public function getStatus()
     {

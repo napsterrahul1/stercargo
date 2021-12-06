@@ -62,17 +62,35 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
         'as' => 'admin'
     ]);
 
+    Route::get('loading/delete/{shipment}','LoadingController@destroy')->name('admin.loading.delete-shipment');
+    Route::patch('loading/update/{shipment}','LoadingController@update')->name('admin.loading.update-shipment');
+
     Route::get('loading/export-prs/{status}','LoadingController@exportShipments')->name('admin.loading.export');
 
     Route::resource('loading','LoadingController',[
         'as' => 'admin'
     ]);
 
+    Route::get('manifest/delete/{shipment}','ManifestController@destroy')->name('admin.manifest.delete-shipment');
+    Route::patch('manifest/update/{shipment}','ManifestController@update')->name('admin.manifest.update-shipment');
+
     Route::get('manifest/export-prs/{status}','ManifestController@exportShipments')->name('admin.manifest.export');
 
     Route::resource('manifest','ManifestController',[
         'as' => 'admin'
     ]);
+
+    Route::get('thc/delete/{shipment}','THCController@destroy')->name('admin.thc.delete-shipment');
+    Route::patch('thc/update/{shipment}','THCController@update')->name('admin.thc.update-shipment');
+
+    Route::get('thc/export-prs/{status}','THCController@exportShipments')->name('admin.thc.export');
+
+    Route::resource('thc','THCController',[
+        'as' => 'admin'
+    ]);
+
+    Route::resource('dockets', 'DocketController');
+    Route::get('dockets/delete/{client}','DocketController@destroy')->name('dockets.delete-client');
 
 });
 
