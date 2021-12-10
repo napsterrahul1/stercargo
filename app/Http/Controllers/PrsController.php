@@ -42,6 +42,7 @@ use App\AddressClient;
 use App\Http\Helpers\UserRegistrationHelper;
 use Carbon\Carbon;
 use App\Exports\ShipmentsExportExcel;
+use App\Models\Docket;
 
 class PrsController extends Controller
 {
@@ -90,7 +91,8 @@ class PrsController extends Controller
     {
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.prs.create', compact('branchs', 'clients'));
+        $dockets = Docket::get();
+        return view('backend.prs.create', compact('branchs', 'clients','dockets'));
     }
 
     /**

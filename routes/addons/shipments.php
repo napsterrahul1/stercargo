@@ -90,7 +90,7 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
     ]);
 
     Route::resource('dockets', 'DocketController');
-    Route::get('dockets/delete/{client}','DocketController@destroy')->name('dockets.delete-client');
+    Route::get('dockets/delete/{client}','DocketController@destroy')->name('dockets.delete-docket');
 
 });
 

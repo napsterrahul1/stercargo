@@ -138,6 +138,7 @@
 
                     <th>{{translate('Total Pkg')}}</th>
                     <th>{{translate('Total Weight')}}</th>
+                    <th>{{translate('Total Amount')}}</th>
                     <th>{{translate('Paid')}}</th>
 
                     @if($status == \App\Shipment::CAPTAIN_ASSIGNED_STATUS || $status == \App\Shipment::RECIVED_STATUS)
@@ -159,7 +160,7 @@
                 @foreach($shipments as $key=>$shipment)
                     @if($client_id != $shipment->client_id)
                         <tr class="bg-light">
-                            <td><label class="checkbox checkbox-success"><input type="checkbox" onclick="check_client(this,{{$shipment->client_id}})"/><span></span></label></td>
+                            <td><label class="checkbox checkbox-success"><input type="checkbox" onclick="check_client(this,{{$shipment->client_id}})"/><span></span></label></td><td></td>
                             <th colspan="4">
                                 @if($user_type == 'admin' || in_array('1100', $staff_permission) || in_array('1005', $staff_permission) )
                                     <a href="{{route('admin.clients.show',$shipment->client_id)}}">{{$shipment->client->name}}</a>
@@ -184,11 +185,21 @@
 
                         </td>
                         <td width="3%"><a href="{{url('admin/prs/'.$shipment->id )}}">{{ ($key+1) + ($shipments->currentPage() - 1)*$shipments->perPage() }}</a></td>
+
                         <td width="5%"><a href="{{url('admin/prs/'. $shipment->id )}}">{{$shipment->code}}</a></td>
+
                         <td>{{$shipment->date}}</td>
                         @if($status == "all") <td>{{$shipment->getStatus()}}</td> @endif
-                        <td>{{$shipment->vendor_name }}</td>
-                        <td>{{$shipment->total_weight }}</td>
+                        <td>
+                            {{$shipment->vendor_name }}
+                        </td>
+                        <td>
+                            <?php $weight =  \App\Models\Docket::docketWeight($shipment->docket); ?>
+                            {{$weight ? $weight : 0 }}
+                        </td> <td>
+                            <?php $amount =  \App\Models\Docket::docketAmount($shipment->docket); ?>
+                            {{$amount ? $amount : 0 }}
+                        </td>
 
 
                         <td>{{format_price($shipment->tax + $shipment->shipping_cost + $shipment->insurance) }}</td>

@@ -191,14 +191,11 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Docket Number')}}:</label>
-                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket][]" multiple>
+                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket][]" id="docket" multiple>
                                         <option></option>
-                                        @foreach($branchs as $branch)
-                                            @if($user_type == 'branch')
-                                                <option @if( Auth::user()->userBranch->branch_id==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
-                                            @else
-                                                <option @if(\App\ShipmentSetting::getVal('def_branch')==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
-                                            @endif
+                                        @foreach($dockets as $docket)
+                        <option value="{{$docket->id}}">{{$docket->code}}</option>
+                                          
                                         @endforeach
                                     </select>
                                 </div>
@@ -239,7 +236,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Total Docket Number')}}:</label>
-                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" id="total_docket" />
 
                                 </div>
                             </div>
@@ -256,7 +253,7 @@
 
 
                         <hr>
-
+<!-- 
                         <div id="kt_repeater_1">
                             <div class="row" id="kt_repeater_1">
                                 <h2 class="text-left">{{translate('Package Info')}}:</h2>
@@ -333,7 +330,7 @@
                                 </div>
 
                             </div>
-                        </div>
+                        </div> -->
                     </div>
 
                     <div class="mb-0 text-right form-group">
@@ -396,12 +393,17 @@
         });
     @endif
 
+    $('.select-branch').on('change', function() {
+       var dockcount = $("#docket :selected").length;
+
+       $("#total_docket").val(dockcount);
+    });
     $('.select-branch').select2({
             placeholder: "Select Docket",
     })
     @if($user_type == 'admin' || in_array('1006', $staff_permission) )
         .on('select2:open', () => {
-            $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.branchs.create')}}?redirect=admin.shipments.create"
+            $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('dockets.create')}}?redirect=admin.prs.create"
                 class="btn btn-primary" >+ {{translate('Add New Docket')}}</a>
                 </li>`);
         });

@@ -67,7 +67,7 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <label>{{translate('Destination')}}:</label>
-                            <select name="destination" style="display: block !important;"
+                            <select name="to_destination" style="display: block !important;"
                                     class="change-area-client-address form-control">
                                 <option value="">Select</option>
                                 <?php foreach ($areas as $key => $value): ?>
@@ -81,7 +81,7 @@
                     <div class="form-group">
                         <label>{{translate('Freight Paid By')}}:</label>
                         <input id="destination" type="text" class="form-control"
-                               placeholder="{{translate('Freight Paid By')}}" name="freight_paid _by">
+                               placeholder="{{translate('Freight Paid By')}}" name="freight_paid_by">
                     </div>
                     </div>
 
@@ -122,10 +122,22 @@
                                        placeholder="{{translate('Description')}}" name="description">
                             </div>
                         </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{{translate('Bill Paid By')}}:</label>
+                                <select name="bill_paid_by" style="display: block !important;"
+                                        class="change-area-client-address form-control">
+                                    <option value="0">Sender</option>
+                                    <option value="1">Receiver</option>
+
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>{{translate('PCS')}}:</label>
-                                <input type="text" class="form-control" placeholder="{{translate('PCS')}}" name="pcs">
+                                <input type="text" class="form-control fright" placeholder="{{translate('PCS')}}" name="pcs" id="pcs">
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -140,20 +152,9 @@
                     <div class="form-group">
                         <label>{{translate('Charge Weight')}}:</label>
                         <input type="text" class="form-control" placeholder="{{translate('Charge Weight')}}"
-                               name="charge_weight">
+                               name="charge_weight" id="charge_weight">
                     </div>
                     </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>{{translate('Bill Paid By')}}:</label>
-                                <select name="bill_paid_by" style="display: block !important;"
-                                        class="change-area-client-address form-control">
-                                    <option value="0">Sender</option>
-                                    <option value="1">Receiver</option>
-
-                                </select>
-                            </div>
-                        </div>
                         <div class="col-md-6">
                     <div class="form-group">
                         <label>{{translate('Varai/Hamali Charge/Loading Unloading Charge')}}:</label>
@@ -165,7 +166,8 @@
                         <label>{{translate('Calculation On')}}:</label>
                         {{--<input type="text" class="form-control" placeholder="{{translate('Calc on')}}" name="">--}}
                         <select name="calc_on" style="display: block !important;"
-                                class="change-area-client-address form-control">
+                                class="change-area-client-address form-control" id="calc_on">
+                            <option value="">Select</option>
                             <option value="PCS">PCS</option>
                             <option value="Weight">Weight</option>
                             <option value="FTL">FTL</option>
@@ -175,37 +177,48 @@
                     </div>
 
                         <div class="col-md-3">
-                    <div class="form-group">
-                        <label>{{translate('FOV')}}:</label>
-                        <input type="number" class="form-control" placeholder="{{translate('FOV')}}" name="FOV"
-                               min="0.0" max="100">
-                    </div>
-                    </div>
-                        <div class="col-md-3">
-                    <div class="form-group">
-                        <label>{{translate('Fuel')}}:</label>
-                        <input type="number" class="form-control" min="0.0" max="100" placeholder="{{translate('Fuel')}}" name="fuel">
-                    </div>
-                    </div>
-
-                        <div class="col-md-3">
                             <div class="form-group">
                                 <label>{{translate('Freight Rate')}}:</label>
-                                <input type="number" class="form-control" placeholder="{{translate('Freight Rate')}}" name="freight_rate">
+                                <input type="number" class="form-control fright" placeholder="{{translate('Freight Rate')}}" name="freight_rate" id="freight_rate">
                             </div>
                         </div>
 
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>{{translate('Freight Amount')}}:</label>
-                                <input type="number" class="form-control"  placeholder="{{translate('Freight Amount')}}" name="freight_amount">
+                                <input type="number" class="form-control"  placeholder="{{translate('Freight Amount')}}" name="freight_amount" id="freight_amount" readonly>
+                            </div>
+                        </div>
+                             <div class="col-md-3">
+                    <div class="form-group">
+                        <label>{{translate('FOV')}}:</label>
+                        <input type="number" class="form-control" placeholder="{{translate('FOV')}}" name="FOV"
+                               min="0.0" max="100" id="fov">
+                    </div>
+                    </div>
+                        <div class="col-md-3">
+                    <div class="form-group">
+                        <label>{{translate('Fuel')}}:</label>
+                        <input type="number" class="form-control" min="0.0" max="100" placeholder="{{translate('Fuel')}}" name="fuel" id="fuel">
+                    </div>
+                    </div>
+                          <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{{translate('FOV Charges')}}:</label>
+                                <input type="number" id="fov_charges" readonly class="form-control"  placeholder="{{translate('FOV Charges')}}" value="0.0" name="fov_charges" readonly>
                             </div>
                         </div>
 
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>{{translate('Total Amount')}}:</label>
-                                <input type="number" id="total_amount" readonly class="form-control"  placeholder="{{translate('Total Amount')}}" value="0.0" name="fuel">
+                                <input type="number" id="total_amount" readonly class="form-control finalamount"  placeholder="{{translate('Total Amount')}}" value="0.0" name="total_amount" readonly>
+                            </div>
+                        </div>
+                          <div class="col-md-3">
+                            <div class="form-group">
+                                <label>{{translate('Fuel Charges')}}:</label>
+                                <input type="number" id="fuel_charges" readonly class="form-control finalamount"  placeholder="{{translate('Fuel Charges')}}" value="0.0" name="fuel_charges" readonly>
                             </div>
                         </div>
                     </div>
@@ -216,21 +229,19 @@
                                 <div class="col-lg-3">
                                     <div class="form-group">
                                         <label>{{translate('LR Charge')}}({{currency_symbol()}}):</label>
-                                        <input type="number" min="0" value="" class="form-control"
-                                               placeholder="{{translate('Here')}}" name="LR_charge">
+                      <input type="number" min="0" value="" class="form-control finalamount" placeholder="{{translate('Here')}}" name="LR_charge" id="lr_charges">
                                     </div>
                                 </div>
                                 <div class="col-lg-3">
                                     <div class="form-group">
                                         <label>{{translate('ODA Charge')}}({{currency_symbol()}}):</label>
-                                        <input type="number" min="0" value="" class="form-control"
-                                               placeholder="{{translate('Here')}}" name="oda_charge">
+            <input type="number" min="0" value="" class="form-control finalamount" placeholder="{{translate('Here')}}" name="oda_charge" id="oda_charge">
                                     </div>
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>{{translate('Door Delivery Charge')}}:</label>
-                                    <input type="number" min="0" id="door_dly_charge" class="form-control"
-                                           placeholder="{{translate('door_dly_charge')}}" value=""
+                                    <input type="number" min="0" id="door_dly_charge" class="form-control finalamount"
+                                           placeholder="{{translate('Door dly charge')}}" value=""
                                            name="door_dly_charge">
                                 </div>
 
@@ -329,5 +340,108 @@
                 }
             );
         });
+
+
+
+            function getcalon(calc_on) {
+                if(calc_on == 'FTL'){
+                var pcs = 1;
+
+                }else if(calc_on == "Weight"){
+                var pcs = $('#charge_weight').val();
+
+                }else{
+                var pcs = $('#pcs').val();
+
+                }
+                var freight_rate = $('#freight_rate').val();
+                var amount = pcs * freight_rate;
+                $("#freight_amount").val('');
+                $("#freight_amount").val(amount);
+            }
+
+            $(".fright").on('keyup paste', function() {
+            var calc_on = $("#calc_on").val();
+
+            getcalon(calc_on);
+            });
+
+            $("#calc_on").on('change', function() {
+               // alert(1);
+             var calc_on = $(this).val();
+            getcalon(calc_on);
+            });
+            
+
+
+    $('#fov').on('input', function() {
+      calculatefov();
+      calculatefuel();
+    calculatefinalamount();
+
+    });
+    $('#freight_amount').on('input', function() {
+     calculatefov();
+     calculatefuel();
+    calculatefinalamount();
+
+    });
+    function calculatefov(){
+        var pPos = parseInt($('#freight_amount').val()); 
+        var pEarned = parseInt($('#fov').val());
+        var perc="";
+        if(isNaN(pPos) || isNaN(pEarned)){
+            perc=" ";
+           }else{
+           perc = ((pEarned/100) * pPos).toFixed(3);
+           }
+        
+        $('#fov_charges').val(perc);
+       var fov_charge = parseInt($('#fov_charges').val());
+
+
+        var total = pPos + fov_charge;
+        $('#total_amount').val(total);
+    }
+    function calculatefuel(){
+        var pPos = parseInt($('#total_amount').val()); 
+        var pEarned = parseInt($('#fuel').val());
+        var perc="";
+        if(isNaN(pPos) || isNaN(pEarned)){
+            perc=" ";
+           }else{
+           perc = ((pEarned/100) * pPos).toFixed(3);
+           }
+        
+        $('#fuel_charges').val(perc);
+    }
+
+    $('#fuel').on('input', function() {
+     calculatefuel();
+    });
+
+      function calculatefinalamount(){
+        var total_amount = parseInt($('#total_amount').val()); 
+        var fuel_charges = parseInt($('#fuel_charges').val());
+        var lr_charges = parseInt($('#lr_charges').val());
+        var oda_charge = parseInt($('#oda_charge').val());
+        var door_charges = parseInt($('#door_dly_charge').val());
+        var perc="";
+        if(isNaN(fuel_charges) || isNaN(lr_charges) || isNaN(oda_charge) || isNaN(door_charges) || isNaN(total_amount)){
+            perc=" ";
+           }else{
+           perc = total_amount + fuel_charges + lr_charges + oda_charge + door_charges;
+           }
+        
+        $('#final_amount').val(perc);
+    }
+        
+            $(".finalamount").on('change keyup paste', function() {
+            calculatefinalamount();
+            });
+
+
+
+
     </script>
 @endsection
