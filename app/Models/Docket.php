@@ -14,8 +14,8 @@ class Docket extends Model
      * @var array
      */
     protected $fillable = [
-        'date', 'invoice_no', 'from_source','to_destination','freight_paid _by','sender','receiver','billing_party',
-        'product','description','pcs','actual_weight','charge_weight','calc_on','charge','bill_paid_by','FOV','fuel','LR_charge','oda_charge','door_dly_charge','created_by','updated_by'
+        'date','invoice_no', 'from_source','to_destination','freight_paid _by','sender','receiver','billing_party',
+        'product','description','pcs','actual_weight','charge_weight','calc_on','charge','bill_paid_by','FOV','fuel','LR_charge','oda_charge','door_dly_charge','created_by','updated_by','invoice_value','final_amount','total_amount','code','freight_paid_by','freight_rate','freight_amount','fov_charges','fuel_charges'
 
 
 
@@ -34,6 +34,45 @@ class Docket extends Model
      public function cities()
     {
         return $this->belongsTo('App\Area','from_source');
+    }public function destinations()
+    {
+        return $this->belongsTo('App\Area','to_destination');
+    }
+    public static function docketWeight($id)
+    {
+        $doc= explode(",",$id);
+        $weight = '';
+        $weight = Docket::whereIn('id', $doc)->sum('charge_weight');
+        
+        return $weight;
+    }
+      public static function docketPackage($id)
+    {
+        $doc= explode(",",$id);
+        $pcs = '';
+        $pcs = Docket::whereIn('id', $doc)->sum('pcs');
+        return $pcs;
+    }
+    public static function docketAmount($id)
+    {
+        $doc= explode(",",$id);
+        $weight = '';
+        $weight = Docket::whereIn('id', $doc)->sum('final_amount');
+        
+        return $weight;
+    }
+    public static function code($id){
+        //get last record
+        $record = self::where('code','!=','')->latest()->first();
+        if($record)
+            $expNum =  ltrim($record->code,'DOC');
+        else
+            $expNum = [];
+        if(!$expNum){
+            return 'DOC0001';
+        }
+            $number = str_pad(isset($expNum) ? $expNum+1 : 1, 4, '0', STR_PAD_LEFT);
+           return $id.$number;
     }
 
  

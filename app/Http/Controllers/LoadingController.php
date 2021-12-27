@@ -18,6 +18,7 @@ use App\Http\Helpers\StatusManagerHelper;
 use App\Http\Helpers\TransactionHelper;
 use App\Mission;
 use App\Models\Country;
+use App\Models\Manifest;
 use App\Package;
 use App\PackageShipment;
 use App\Shipment;
@@ -43,6 +44,7 @@ use App\AddressClient;
 use App\Http\Helpers\UserRegistrationHelper;
 use Carbon\Carbon;
 use App\Exports\ShipmentsExportExcel;
+use App\Models\Docket;
 
 class LoadingController extends Controller
 {
@@ -67,7 +69,7 @@ class LoadingController extends Controller
             }
         }
 
-        $shipments = $shipments->orderBy('client_id')->orderBy('id','DESC')->paginate(20);
+        $shipments = $shipments->where('status_id',0)->orderBy('client_id')->orderBy('id','DESC')->paginate(20);
         $actions = new ShipmentActionHelper();
         $actions = $actions->get('all');
         $page_name = translate('All Loading Sheet');
@@ -91,7 +93,9 @@ class LoadingController extends Controller
     {
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.loading.create', compact('branchs', 'clients'));
+        $dockets = Docket::get();
+
+        return view('backend.loading.create', compact('branchs', 'clients','dockets'));
     }
 
     /**
@@ -106,11 +110,13 @@ class LoadingController extends Controller
 
         try {
             DB::beginTransaction();
+            $amount = Docket::docketWeight( implode(',',$request->Shipment['docket']));
+
             $model = new Loading();
             $model->fill($_POST['Shipment']);
             $model->docket = implode(',',$request->Shipment['docket']);
-            $model->code = rand(1,9999);
-
+            $model->total_weight = $amount;
+            $model['code'] = Loading::code('LOD');
             if (!$model->save()) {
                 return response()->json(['message' => new \Exception()] );
             }
@@ -118,22 +124,22 @@ class LoadingController extends Controller
 
             DB::commit();
 
-            $counter = 0;
-            if (isset($_POST['Package'])) {
-                if (!empty($_POST['Package'])) {
-                    foreach ($_POST['Package'] as $package) {
-                        $package_shipment = new PRSPackage();
-                        $package_shipment->fill($package);
-                        $package_shipment->foreign_id = $model->id;
-                        $package_shipment->type = 2;
-                        if (!$package_shipment->save()) {
-                            throw new \Exception();
-                        }
-                    }
-                }
-            }
+            // $counter = 0;
+            // if (isset($_POST['Package'])) {
+            //     if (!empty($_POST['Package'])) {
+            //         foreach ($_POST['Package'] as $package) {
+            //             $package_shipment = new PRSPackage();
+            //             $package_shipment->fill($package);
+            //             $package_shipment->foreign_id = $model->id;
+            //             $package_shipment->type = 2;
+            //             if (!$package_shipment->save()) {
+            //                 throw new \Exception();
+            //             }
+            //         }
+            //     }
+            // }
 
-            flash(translate("PRS added successfully"))->success();
+            flash(translate("Loading added successfully"))->success();
             return redirect()->route('admin.loading.show', $model->id);
         } catch (\Exception $e) {
             DB::rollback();
@@ -163,7 +169,7 @@ class LoadingController extends Controller
     {
         $shipment = Loading::find($shipment);
         if($type == 'label'){
-            return view('backend.loading.print_label', compact('shipment'));
+            return view('backend.loading.print', compact('shipment'));
         }else{
             return view('backend.loading.print', compact('shipment'));
         }
@@ -182,7 +188,8 @@ class LoadingController extends Controller
         $shipment = Loading::find($id);
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.loading.edit', compact('branchs', 'clients', 'shipment'));
+         $dockets = Docket::get();
+        return view('backend.loading.edit', compact('branchs', 'clients', 'shipment','dockets'));
     }
 
     /**
@@ -197,9 +204,13 @@ class LoadingController extends Controller
 
         try {
             DB::beginTransaction();
+            $amount = Docket::docketWeight( implode(',',$request->Shipment['docket']));
+
             $model = Loading::find($shipment);
             $model->fill($_POST['Shipment']);
             $model->docket = implode(',',$request->Shipment['docket']);
+             $model->total_weight = $amount;
+
             if (!$model->save()) {
                 throw new \Exception();
             }
@@ -226,7 +237,7 @@ class LoadingController extends Controller
 
 //            event(new UpdateShipment($model));
             DB::commit();
-            flash(translate("PRS Updated successfully"))->success();
+            flash(translate("Loading Updated successfully"))->success();
             $route = 'admin.loading.index';
             return execute_redirect($request, $route);
         } catch (\Exception $e) {
@@ -239,7 +250,30 @@ class LoadingController extends Controller
         }
     }
 
+    public function converttomanifest(Request $request, $shipment)
+    {
+         $model = Loading::find($shipment);
+        $mn = new Manifest();
+            $mn->docket = $model->docket;
+            $mn->code = rand(1,9999);
+            $mn->total_docket = $model->total_docket;
+            $mn->date = $model->date;
+            $mn->origin = $model->origin;
+            $mn->destination = $model->destination;
+            $mn->receiver_name = $model->receiver_name;
+            $mn->sender_name = $model->sender_name;
+            // $mn->boy_name = $model->boy_name;
+            $mn->total_weight = $model->total_weight;
+            $mn->total_package = $model->total_package;
+            $mn->status_id = 1;
+            $mn->save();
+            flash(translate("Loading Converted successfully"))->success();
+            $route = 'admin.loading.index';
+            return execute_redirect($request, $route);
 
+
+
+    }
 
     public function import(Request $request)
     {

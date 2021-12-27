@@ -66,15 +66,12 @@ $d = new DNS1D();
                     </div>
 
                     <div class="pb-6 d-flex justify-content-between">
+                        
                         <div class="d-flex flex-column flex-root">
-                            <span class="mb-4 text-dark font-weight-bold">{{translate('Customer/Sender')}}</span>
-                            @if(Auth::user()->user_type == 'admin' || in_array('1005', json_decode(Auth::user()->staff->role->permissions ?? "[]")))
-                                <a class="text-danger font-weight-boldest font-size-lg" href="{{route('admin.clients.show',$shipment->client_id)}}">{{$shipment->client->name}}</a>
-                            @else
-                                <span class="text-danger font-weight-boldest font-size-lg">{{$shipment->client->name}}</span>
-                            @endif
+                            <span class="mb-4 text-dark font-weight-bold">{{translate('Sender')}}</span>
+                            <span class="text-danger font-weight-boldest font-size-lg">{{$shipment->sender_name}}</span>
 
-                        </div>
+                        </div> 
                         <div class="d-flex flex-column flex-root">
                             <span class="mb-4 text-dark font-weight-bold">{{translate('Receiver')}}</span>
                             <span class="text-danger font-weight-boldest font-size-lg">{{$shipment->receiver_name}}</span>
@@ -179,7 +176,7 @@ $d = new DNS1D();
                     <div class="d-flex justify-content-between">
 
 
-                        <a href="{{route('admin.shipments.print', array($shipment->id, 'label'))}}" class="btn btn-light-primary font-weight-bold" target="_blank">{{translate('Print Label')}}<i class="ml-2 la la-box-open"></i></a>
+                        <a href="{{route('admin.loading.prints', array($shipment->id, 'label'))}}" class="btn btn-light-primary font-weight-bold" target="_blank">{{translate('Print Label')}}<i class="ml-2 la la-box-open"></i></a>
                         <a href="{{route('admin.shipments.print', array($shipment->id, 'invoice'))}}" class="btn btn-light-primary font-weight-bold" target="_blank">{{translate('Print Invoice')}}<i class="ml-2 la la-file-invoice-dollar"></i></a>
 
                         @if(Auth::user()->user_type == 'admin')

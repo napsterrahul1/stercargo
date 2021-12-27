@@ -18,6 +18,7 @@ use App\ClientPackage;
 use Carbon\Carbon;
 use App\Package;
 use App\Models\Docket;
+use App\Models\PRS;
 use App\Branch;
 use App\Area;
 
@@ -63,14 +64,15 @@ class DocketController extends Controller
                 'from_source' => ['email','required','unique:users'],
                 'to_destination' => 'required',
             ]);
- 
             DB::beginTransaction();
             $model = new Docket();
-            $input = $request->all();
+         $input = $request->all();
+
+            $input['code'] = Docket::code('DOC');
 
              $user = Docket::create($input);
              DB::commit();
-            flash(translate("Client added successfully"))->success();
+            flash(translate("Docket added successfully"))->success();
             $route = 'dockets.index';
             return execute_redirect($request,$route);
         }catch(\Exception $e){
@@ -186,10 +188,12 @@ class DocketController extends Controller
      */
     public function show($id)
     {
-        $client = Client::where('id', $id)->first();
-        $shipments = \App\Shipment::where('client_id', $id)->paginate(15);
+        $client = Docket::where('id', $id)->first();
+       // $branchs = Branch::where('is_archived',0)->get();
+        $areas= Area::get();
+        $areas = Area::select('name','id')->get();
         if($client != null){
-            return view('backend.clients.show',compact('client','shipments'));
+            return view('backend.docket.show',compact(['client','areas']));
         }
         abort(404);
     }
@@ -204,9 +208,8 @@ class DocketController extends Controller
     {
         $client = Docket::where('id', $id)->first();
        // $branchs = Branch::where('is_archived',0)->get();
-                $areas= Area::get();
+        $areas= Area::get();
         $areas = Area::select('name','id')->get();
-
         if($client != null){
             return view('backend.docket.edit',compact(['client','areas']));
         }
@@ -255,11 +258,21 @@ class DocketController extends Controller
      */
     public function destroy($client)
     {
-   
         if (env('DEMO_MODE') == 'On') {
             flash(translate('This action is disabled in demo mode'))->error();
             return back();
         }
+
+        $prs = DB::table("prs")
+    ->select('id','docket')
+       ->whereRaw("find_in_set($client,docket)")
+    ->first();
+    if($prs)
+    {
+        flash(translate('Already is in use'))->error();
+            return back();
+
+    }
         $model = Docket::findOrFail($client)->delete();
         
             flash(translate('Docket has been deleted successfully'))->success();
@@ -342,5 +355,14 @@ class DocketController extends Controller
             }      
         }
         
+    }
+
+    public function docketWeight($id)
+    {
+        $doc= explode(",",$id);
+        $weight = '';
+        $weight = Docket::whereIn('id', $doc)->sum('charge_weight');
+        
+        return $weight;
     }
 }

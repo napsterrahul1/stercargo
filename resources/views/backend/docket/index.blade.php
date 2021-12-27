@@ -39,7 +39,7 @@
                             <td  width="3%">{{ $client->invoice_no }}</td>
                             <td width="20%">{{$client->date}}</td>
                             <td width="20%">{{$client->cities->name}}</td>
-                            <td width="20%">{{$client->cities->name}}</td>
+                            <td width="20%">{{$client->destinations->name}}</td>
                            
                             <td class="text-center">
                                     <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('dockets.show', $client->id)}}" title="{{ translate('Show') }}">
@@ -48,7 +48,7 @@
                                     <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('dockets.edit', $client->id)}}" title="{{ translate('Edit') }}">
                                         <i class="las la-edit"></i>
                                     </a>
-                                    <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('dockets.delete-client', ['client'=>$client->id])}}" title="{{ translate('Delete') }}">
+                                    <a href="#" class="btn btn-soft-danger btn-icon btn-circle btn-sm confirm-delete" data-href="{{route('dockets.delete-docket', [$client->id])}}" title="{{ translate('Delete') }}">
                                         <i class="las la-trash"></i>
                                     </a>
                                 </td>

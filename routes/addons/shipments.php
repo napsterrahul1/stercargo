@@ -61,15 +61,20 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
     Route::resource('prs','PrsController',[
         'as' => 'admin'
     ]);
+    Route::get('prsdocketWeight','PrsController@prsdocketWeight');
+    Route::post('prs/docketweight/order','PrsController@prsdocketWeight')->name('admin.prs.docketweight.order');
 
     Route::get('loading/delete/{shipment}','LoadingController@destroy')->name('admin.loading.delete-shipment');
     Route::patch('loading/update/{shipment}','LoadingController@update')->name('admin.loading.update-shipment');
+    Route::post('loading/converttomanifest/{shipment}','LoadingController@converttomanifest')->name('admin.loading.converttomanifest');
 
     Route::get('loading/export-prs/{status}','LoadingController@exportShipments')->name('admin.loading.export');
 
     Route::resource('loading','LoadingController',[
         'as' => 'admin'
     ]);
+    Route::get('loading/print/{shipment}/{type}','LoadingController@prints')->name('admin.loading.prints');
+
 
     Route::get('manifest/delete/{shipment}','ManifestController@destroy')->name('admin.manifest.delete-shipment');
     Route::patch('manifest/update/{shipment}','ManifestController@update')->name('admin.manifest.update-shipment');
@@ -90,7 +95,8 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
     ]);
 
     Route::resource('dockets', 'DocketController');
-    Route::get('dockets/delete/{client}','DocketController@destroy')->name('dockets.delete-client');
+    Route::get('dockets/delete/{client}','DocketController@destroy')->name('dockets.delete-docket');
+    Route::get('/docketweight','DocketController@docketWeight');
 
 });
 

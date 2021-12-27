@@ -159,7 +159,7 @@
                                             }
 
                                         @endphp
-                                        <input type="text" placeholder="{{translate('PRS Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
+                                        <input type="text" placeholder="{{translate('PRS Date')}}" value="" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
                                         <div class="input-group-append">
                                             <span class="input-group-text">
                                                 <i class="la la-calendar"></i>
@@ -182,6 +182,16 @@
                                     <input type="text" placeholder="{{translate('Vendor Name')}}" name="Shipment[vendor_name]" class="form-control" required/>
                                 </div>
                             </div>
+                              <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Vendor Type')}}:</label>
+                                    <select name="Shipment[vendor_type]" class="form-control" required>
+                                        <option value="Market">Market</option>
+                                        <option value="Attach">Attach</option>
+                                        <option value="Own">Own</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Vehicle Hire Amount')}}:</label>
@@ -191,32 +201,20 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Docket Number')}}:</label>
-                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket][]" multiple>
+                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket][]" id="docket" multiple>
                                         <option></option>
-                                        @foreach($branchs as $branch)
-                                            @if($user_type == 'branch')
-                                                <option @if( Auth::user()->userBranch->branch_id==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
-                                            @else
-                                                <option @if(\App\ShipmentSetting::getVal('def_branch')==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
-                                            @endif
+                                        @foreach($dockets as $docket)
+                                        <option value="{{$docket->id}}">{{$docket->code}}</option>
+                                          
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group client-select">
-                                    <label>{{translate('Customer')}}:</label>
-                                    @if($auth_user->user_type == "customer")
-                                        <input type="text" placeholder="" class="form-control" name="" value="{{$auth_user->name}}" disabled>
-                                        <input type="hidden" name="Shipment[client_id]" value="{{$auth_user->userClient->id}}">
-                                    @else
-                                        <select class="form-control kt-select2 select-client" id="client-id" name="Shipment[client_id]">
-                                            <option></option>
-                                            @foreach($clients as $client)
-                                            <option value="{{$client->id}}" data-phone="{{$client->responsible_mobile}}">{{$client->name}}</option>
-                                            @endforeach
-                                        </select>
-                                    @endif
+                                    <label>{{translate('Sender')}}:</label>                                    <input type="text" placeholder="{{translate('Sender Name')}}" name="Shipment[sender_name]" class="form-control" />
+
+                                    
                                 </div>
                             </div>
 
@@ -239,11 +237,24 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Total Docket Number')}}:</label>
-                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" id="total_docket" />
 
                                 </div>
                             </div>
+                                <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Total Package')}}:</label>
+                                    <input type="text" placeholder="{{translate('Total Package')}}" name="Shipment[total_package]" class="form-control" id="total_package" />
 
+                                </div>
+                            </div>
+                              <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Total Weight')}}:</label>
+                                    <input type="text" placeholder="{{translate('Total Weight')}}" name="Shipment[total_weight]" class="form-control" id="total_weight" />
+
+                                </div>
+                            </div>
 
 
                         </div>
@@ -256,7 +267,7 @@
 
 
                         <hr>
-
+<!-- 
                         <div id="kt_repeater_1">
                             <div class="row" id="kt_repeater_1">
                                 <h2 class="text-left">{{translate('Package Info')}}:</h2>
@@ -333,9 +344,9 @@
                                 </div>
 
                             </div>
-                        </div>
+                        </div> -->
                     </div>
-
+<input type="hidden" id="base_url" value="{!! url('/') !!}">
                     <div class="mb-0 text-right form-group">
                         <button type="submit" class="btn btn-sm btn-primary">{{translate('Save')}}</button>
                     </div>
@@ -366,16 +377,10 @@
         }
     }
 
-    $('.select-client').select2({
+        $('.select-client').select2({
             placeholder: "Select Client",
-        })
-    @if($user_type == 'admin' || in_array('1005', $staff_permission) )
-        .on('select2:open', () => {
-            $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.clients.create')}}?redirect=admin.shipments.create"
-                class="btn btn-primary" >+ {{translate('Add New Client')}}</a>
-                </li>`);
         });
-    @endif
+    
 
     $('.select-client').change(function(){
         var client_phone = $(this).find(':selected').data('phone');
@@ -388,24 +393,43 @@
     $('.delivery-time').select2({
         placeholder: "Delivery Time",
     })
-    @if($user_type == 'admin' || in_array('1110', $staff_permission) )
-        .on('select2:open', () => {
-            $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.deliveryTime.create')}}?redirect=admin.shipments.create"
-                class="btn btn-primary" >+ {{translate('Add Delivery Time')}}</a>
-                </li>`);
-        });
-    @endif
+
+   var selected = [];
+    $('.select-branch').on('change', function() {
+       var dockcount = $("#docket :selected").length;
+
+$("#total_docket").val(dockcount);
+
+for (var option of document.getElementById('docket').options) {
+if (option.selected) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       }
+}
+console.log(selected);
+      var base_url = $("#base_url").val();
+
+     // var urlss = base_url + '/prsdocketWeight';
+       $.ajax({
+                url:'{{ route("admin.prs.docketweight.order") }}',
+                    type:'POST',
+                    data:  { _token: AIZ.data.csrf, docket:selected},
+                    dataTy:'json',
+
+              cache: false,
+              success: function (data) {
+                 console.log(data);
+
+               // $('#total_weight').val(data + '.00');
+               // $('#total_package').val(data + '.00');
+                  
+              }
+          });
+
+});
 
     $('.select-branch').select2({
-            placeholder: "Select Docket",
-    })
-    @if($user_type == 'admin' || in_array('1006', $staff_permission) )
-        .on('select2:open', () => {
-            $(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.branchs.create')}}?redirect=admin.shipments.create"
-                class="btn btn-primary" >+ {{translate('Add New Docket')}}</a>
-                </li>`);
-        });
-    @endif
+     placeholder: "Select Docket",
+    });
+   
 
 
 

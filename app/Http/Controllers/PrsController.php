@@ -42,6 +42,7 @@ use App\AddressClient;
 use App\Http\Helpers\UserRegistrationHelper;
 use Carbon\Carbon;
 use App\Exports\ShipmentsExportExcel;
+use App\Models\Docket;
 
 class PrsController extends Controller
 {
@@ -56,17 +57,17 @@ class PrsController extends Controller
         $type = null;
         $sort_by = null;
 
-        $auth_user = Auth::user();
-        if(isset($auth_user))
-        {
-            if(Auth::user()->user_type == 'customer'){
-                $shipments = $shipments->where('client_id', Auth::user()->userClient->client_id);
-            }elseif(Auth::user()->user_type == 'branch'){
-                $shipments = $shipments->where('branch_id', Auth::user()->userBranch->branch_id);
-            }
-        }
+        // $auth_user = Auth::user();
+        // if(isset($auth_user))
+        // {
+        //     if(Auth::user()->user_type == 'customer'){
+        //         $shipments = $shipments->where('sender_name', Auth::user()->userClient->client_id);
+        //     }elseif(Auth::user()->user_type == 'branch'){
+        //         $shipments = $shipments->where('branch_id', Auth::user()->userBranch->branch_id);
+        //     }
+        // }
 
-        $shipments = $shipments->orderBy('client_id')->orderBy('id','DESC')->paginate(20);
+        $shipments = $shipments->orderBy('id','DESC')->paginate(20);
         $actions = new ShipmentActionHelper();
         $actions = $actions->get('all');
         $page_name = translate('All PRS');
@@ -90,7 +91,8 @@ class PrsController extends Controller
     {
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.prs.create', compact('branchs', 'clients'));
+        $dockets = Docket::get();
+        return view('backend.prs.create', compact('branchs', 'clients','dockets'));
     }
 
     /**
@@ -101,12 +103,16 @@ class PrsController extends Controller
      */
     public function store(Request $request)
     {
+            $amount = Docket::docketWeight( implode(',',$request->Shipment['docket']));
 
         try {
             DB::beginTransaction();
+
             $model = new PRS();
             $model->fill($_POST['Shipment']);
             $model->docket = implode(',',$request->Shipment['docket']);
+            $model['code'] = PRS::code('PRS');
+            $model->total_weight = $amount;
 
             if (!$model->save()) {
                 return response()->json(['message' => new \Exception()] );
@@ -116,19 +122,19 @@ class PrsController extends Controller
             DB::commit();
 
             $counter = 0;
-            if (isset($_POST['Package'])) {
-                if (!empty($_POST['Package'])) {
-                        foreach ($_POST['Package'] as $package) {
-                            $package_shipment = new PRSPackage();
-                            $package_shipment->fill($package);
-                            $package_shipment->foreign_id = $model->id;
-                            $package_shipment->type = 1;
-                            if (!$package_shipment->save()) {
-                                throw new \Exception();
-                            }
-                        }
-                }
-            }
+            // if (isset($_POST['Package'])) {
+            //     if (!empty($_POST['Package'])) {
+            //             foreach ($_POST['Package'] as $package) {
+            //                 $package_shipment = new PRSPackage();
+            //                 $package_shipment->fill($package);
+            //                 $package_shipment->foreign_id = $model->id;
+            //                 $package_shipment->type = 1;
+            //                 if (!$package_shipment->save()) {
+            //                     throw new \Exception();
+            //                 }
+            //             }
+            //     }
+            // }
 
             flash(translate("PRS added successfully"))->success();
             return redirect()->route('admin.prs.show', $model->id);
@@ -179,7 +185,8 @@ class PrsController extends Controller
         $shipment = PRS::find($id);
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.prs.edit', compact('branchs', 'clients', 'shipment'));
+          $dockets = Docket::get();
+        return view('backend.prs.edit', compact('branchs', 'clients', 'shipment','dockets'));
     }
 
     /**
@@ -190,13 +197,16 @@ class PrsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $shipment)
-    {
+    {          
+      $amount = Docket::docketWeight( implode(',',$request->Shipment['docket']));
+
 
         try {
             DB::beginTransaction();
             $model = PRS::find($shipment);
             $model->fill($_POST['Shipment']);
             $model->docket = implode(',',$request->Shipment['docket']);
+            $model->total_weight = $amount;
 
             if (!$model->save()) {
                 throw new \Exception();
@@ -276,6 +286,16 @@ class PrsController extends Controller
         return Excel::download( new PRSExportExcel($status) , $excelName );
     }
 
+    public function prsdocketWeight(Request $request)
+    {
+        $doc= implode(",",$request->docket);
+        //$str = implode(',',array_unique(implode(',', $request->docket)));
+        $weight = '';
+        $array = array_unique( $request->docket);
+        $weight = Docket::whereIn('id', $array)   
+       ->sum('charge_weight');
+        return $weight;
+    }
 
 
 

@@ -69,7 +69,7 @@ class Manifest extends Model
     const CLIENT_STATUS_SUPPLIED = 8;
 
     protected $table = 'manifest';
-    protected $fillable = ['date','docket','client_id','receiver_name','total_docket','amount_to_be_collected','total_weight','origin','destination'];
+    protected $fillable = ['date','docket','client_id','receiver_name','total_docket','amount_to_be_collected','total_weight','origin','destination','total_package','sender_name'];
 
     public function client()
     {

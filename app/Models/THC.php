@@ -68,8 +68,8 @@ class THC extends Model
     const CLIENT_STATUS_DELIVERED = 7;
     const CLIENT_STATUS_SUPPLIED = 8;
 
-    protected $table = 'loading';
-    protected $fillable = ['date','docket','client_id','receiver_name','boy_name','total_docket','amount_to_be_collected','total_weight','origin','destination'];
+    protected $table = 'thc';
+    protected $fillable = ['date','docket','client_id','receiver_name','boy_name','total_docket','amount_to_be_collected','total_weight','origin','destination','vehicle_number','vendor_name','thc_number','vehicle_model','vehicle_type','advance_amount','balance_amount','total_package','hire_amount','manifest_id'];
 
     public function client()
     {

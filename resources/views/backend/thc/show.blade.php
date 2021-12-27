@@ -1,10 +1,8 @@
-<?php
-use \Milon\Barcode\DNS1D;
-$d = new DNS1D();
-?>
 @extends('backend.layouts.app')
 
-@section('sub_title'){{translate('Loading Sheet')}} {{$shipment->code}}@endsection
+@section('sub_title'){{translate('Edit THC')}}@endsection
+
+
 @section('subheader')
     <!--begin::Subheader-->
     <div class="py-2 subheader py-lg-6 subheader-solid" id="kt_subheader">
@@ -14,7 +12,7 @@ $d = new DNS1D();
                 <!--begin::Page Heading-->
                 <div class="flex-wrap mr-5 d-flex align-items-baseline">
                     <!--begin::Page Title-->
-                    <h5 class="my-1 mr-5 text-dark font-weight-bold">{{translate('Loading Sheet')}} {{$shipment->code}}</h5>
+                    <h5 class="my-1 mr-5 text-dark font-weight-bold">{{ translate('Edit THC') }}</h5>
                     <!--end::Page Title-->
                     <!--begin::Breadcrumb-->
                     <ul class="p-0 my-2 mr-5 breadcrumb breadcrumb-transparent breadcrumb-dot font-weight-bold font-size-sm">
@@ -22,7 +20,10 @@ $d = new DNS1D();
                             <a href="{{ route('admin.dashboard')}}" class="text-muted">{{translate('Dashboard')}}</a>
                         </li>
                         <li class="breadcrumb-item text-muted">
-                            <a href="#" class="text-muted">{{$shipment->code}}</a>
+                            <a href="{{ route('admin.thc.index')}}" class="text-muted">{{translate('THC')}}</a>
+                        </li>
+                        <li class="breadcrumb-item text-muted">
+                            <a href="#" class="text-muted">{{ translate('THC') }}</a>
                         </li>
                     </ul>
                     <!--end::Breadcrumb-->
@@ -37,186 +38,526 @@ $d = new DNS1D();
 
 @section('content')
 
+@section('sub_title'){{translate('THC')}}@endsection
+@php
+    $auth_user = Auth::user();
 
 
-    <!--begin::Card-->
-    <div class="card card-custom gutter-b">
-        <div class="p-0 card-body">
-            <!-- begin: Invoice-->
-            <!-- begin: Invoice header-->
-            <div class="px-8 py-8 row justify-content-center pt-md-27 px-md-0">
-                <div class="col-md-10">
-                    <div class="pb-10 d-flex justify-content-between pb-md-20 flex-column flex-md-row">
-                        <div class="px-0 d-flex flex-column align-items-md-start">
-                        <span class="d-flex flex-column align-items-md-start">
-                            <h1 class="mb-10 display-4 font-weight-boldest">{{translate('Loading Sheet')}}: {{$shipment->code}}</h1>
-                            @if($shipment->order_id != null)
-                                <span><span class="font-weight-bolder opacity-70">{{translate('Order ID')}}:</span> {{$shipment->order_id}}</span>
-                            @endif
-                        </span>
-                        </div>
-                        <div class="px-0 d-flex flex-column align-items-md-end">
-                        <span class="d-flex flex-column align-items-md-end opacity-70">
-                            @if($shipment->barcode != null)
-                                <span class="mb-5 font-weight-bolder"><?=$d->getBarcodeHTML($shipment->code, "C128");?></span>
-                            @endif
+@endphp
+<style>
+    label {
+        font-weight: bold !important;
+    }
 
-                        </span>
-                        </div>
-                    </div>
+    .select2-container {
+        display: block !important;
+    }
+</style>
+<div class="mx-auto col-lg-12">
+    <div class="card">
 
-                    <div class="pb-6 d-flex justify-content-between">
-                        <div class="d-flex flex-column flex-root">
-                            <span class="mb-4 text-dark font-weight-bold">{{translate('Customer/Sender')}}</span>
-                            @if(Auth::user()->user_type == 'admin' || in_array('1005', json_decode(Auth::user()->staff->role->permissions ?? "[]")))
-                                <a class="text-danger font-weight-boldest font-size-lg" href="{{route('admin.clients.show',$shipment->client_id)}}">{{$shipment->client->name}}</a>
-                            @else
-                                <span class="text-danger font-weight-boldest font-size-lg">{{$shipment->client->name}}</span>
-                            @endif
-
-                        </div>
-                        <div class="d-flex flex-column flex-root">
-                            <span class="mb-4 text-dark font-weight-bold">{{translate('Receiver')}}</span>
-                            <span class="text-danger font-weight-boldest font-size-lg">{{$shipment->receiver_name}}</span>
-
-                        </div>
-                        <div class="d-flex flex-column flex-root">
-                            <span class="mb-4 text-dark font-weight-bold">{{translate('Status')}}</span>
-                            <span class="opacity-70 d-block">{{$shipment->getStatus()}}</span>
-                        </div>
-                        @if ($shipment->amount_to_be_collected && $shipment->amount_to_be_collected  > 0)
-                            <div class="d-flex flex-column flex-root">
-                                <span class="mb-4 text-dark font-weight-bold">{{translate('Amount To Collected')}}</span>
-                                <span class="text-muted font-weight-bolder font-size-lg">{{format_price($shipment->amount_to_be_collected)}}</span>
-                            </div>
-                        @endif
-                    </div>
-
-                    <div class="border-bottom w-100"></div>
-                    <div class="pt-6 d-flex justify-content-between">
-                        <div class="d-flex flex-column flex-root">
-                            <span class="mb-2 font-weight-bolder">{{translate('Origin')}}</span>
-                            <span class="opacity-70">{{$shipment->origins->name}}</span>
-                        </div>
-                        <div class="d-flex flex-column flex-root">
-                            <span class="mb-2 font-weight-bolder">{{translate('Destination')}}</span>
-                            <span class="opacity-70">{{$shipment->destinations->name }}</span>
-                        </div>
-
-
-                        <div class="d-flex flex-column flex-root">
-                            <span class="mb-2 font-weight-bolder">{{translate('Created date')}}</span>
-                            <span class="opacity-70">{{$shipment->created_at->format('d-m-Y h:i:s')}}</span>
-                        </div>
-                        <div class="d-flex flex-column flex-root">
-                            <span class="mb-2 font-weight-bolder">{{translate('Shipping date')}}</span>
-                            <span class="opacity-70">{{\Carbon\Carbon::parse($shipment->date)->format('d-m-Y')}}</span>
-                        </div>
-                    </div>
-
-
-                    <div class="pt-6 d-flex justify-content-between">
-
-                        <div class="d-flex flex-column flex-root">
-                            <span class="mb-4 text-dark font-weight-bold">{{translate('Total Weight')}}</span>
-                            <span class="text-muted font-weight-bolder font-size-lg">{{$shipment->total_weight}} {{translate('KG')}}</span>
-                        </div>
-
-                    </div>
-
-                    <div class="pt-6 d-flex justify-content-between">
-
-                    </div>
-
-
-                    <div class="pt-6 d-flex justify-content-between">
-
-                    </div>
-                    @if($shipment->attachments_before_shipping)
-
-                    @endif
-
-
-                </div>
-            </div>
-            <!-- end: Invoice header-->
-            <!-- begin: Invoice body-->
-            <div class="px-8 py-8 row justify-content-center py-md-10 px-md-0">
-                <div class="col-md-10">
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th class="pl-0 font-weight-bold text-muted text-uppercase">{{translate('Package ')}}</th>
-
-                                <th class="pr-0 text-right font-weight-bold text-muted text-uppercase">{{translate('Weight')}}</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-
-                            @foreach($shipment->packages as $package)
-
-                                <tr class="font-weight-boldest">
-                                    <td class="pl-0 border-0 pt-7 d-flex align-items-center">{{$package->description}}</td>
-
-                                    <td class="pr-0 text-right align-middle text-primary pt-7">{{$package->weight." ".translate('KG') }}</td>
-                                </tr>
-                            @endforeach
-
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- end: Invoice body-->
-            <!-- begin: Invoice footer-->
-
-            <!-- end: Invoice footer-->
-            <!-- begin: Invoice action-->
-            <div class="px-8 py-8 row justify-content-center py-md-10 px-md-0">
-                <div class="col-md-10">
-                    <div class="d-flex justify-content-between">
-
-
-                        <a href="{{route('admin.thc.print', array($shipment->id, 'label'))}}" class="btn btn-light-primary font-weight-bold" target="_blank">{{translate('Print Label')}}<i class="ml-2 la la-box-open"></i></a>
-                        <a href="{{route('admin.thc.print', array($shipment->id, 'invoice'))}}" class="btn btn-light-primary font-weight-bold" target="_blank">{{translate('Print Invoice')}}<i class="ml-2 la la-file-invoice-dollar"></i></a>
-
-                        @if(Auth::user()->user_type == 'admin')
-                            <a href="{{route('admin.thc.edit', $shipment->id)}}" class="px-6 py-3 btn btn-light-info btn-sm font-weight-bolder font-size-sm">{{translate('Edit Loading Sheet')}}</a>
-                        @endif
-                    </div>
-                </div>
-            </div>
-
-            <!-- end: Invoice action-->
-            <!-- end: Invoice-->
+        <div class="card-header">
+            <h5 class="mb-0 h6">{{translate('THC Info')}}</h5>
         </div>
+
+
+
+
+<form class="form-horizontal" action="{{ route('admin.thc.update-shipment',['shipment'=>$shipment->id]) }}"
+  id="kt_form_1" method="POST" enctype="multipart/form-data">          
+
+@csrf
+{{ method_field('PATCH') }}        
+    <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-12">
+
+
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                @if(\App\ShipmentSetting::getVal('is_date_required') == '1' || \App\ShipmentSetting::getVal('is_date_required') == null)
+                                <div class="form-group">
+                                    <label>{{translate('THC Date')}}:</label>
+                                    <div class="input-group date">
+                                        @php
+                                            $defult_shipping_date = \App\ShipmentSetting::getVal('def_shipping_date');
+                                            if($defult_shipping_date == null )
+                                            {
+                                                $shipping_data = \Carbon\Carbon::now()->addDays(0);
+                                            }else{
+                                                $shipping_data = \Carbon\Carbon::now()->addDays($defult_shipping_date);
+                                            }
+
+                                        @endphp
+                                        <input type="text" placeholder="{{translate('THC Date')}}" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" value="{{ $shipment->date }}" disabled/>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">
+                                                <i class="la la-calendar"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                @endif
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('THC Number')}}:</label>
+                                    <input type="text" placeholder="{{translate('THC Number')}}" name="Shipment[thc_number]" class="form-control"  value="{{ $shipment->thc_number }}" disabled/>
+
+                                </div>
+                            </div>
+
+                              <div class="col-md-6">
+                      <div class="form-group">
+                                    <label>{{translate('Docket Number')}}:</label>
+                                    <?php $selected = explode(",", $shipment->docket);?>
+                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket][]" id="docket" multiple disabled>
+                                        <option></option>
+                                        @foreach($dockets as $docket)
+                                        <option value="{{$docket->id}}" {{ (in_array($docket->id, $selected)) ? 'selected' : '' }} >{{$docket->code}}</option>
+                                        @endforeach
+                                    </select>
+                              
+                            </div>
+                </div>
+
+
+                               <div class="col-lg-6">
+
+                               <div class="form-group client-select">
+                        <label>{{translate('Customer')}}:</label>
+                        @if($auth_user->user_type == "customer")
+                            <input type="text" placeholder="" class="form-control" name=""
+                                   value="{{$auth_user->name}}" disabled>
+                            <input type="hidden" name="Shipment[client_id]"
+                                   value="{{$auth_user->userClient->id}}">
+                        @else
+                            <select class="form-control kt-select2 select-client" id="client-id"
+                                    onchange="selectIsTriggered()" name="Shipment[client_id]" disabled>
+                                <option></option>
+                                <?php $zoneCityIds= explode(',',$shipment->client_id);?>
+                                @foreach($clients as $client)
+                                    @if(in_array($client->id, $zoneCityIds))
+                                        <option value="{{$client->id}}" selected="true" data-phone="{{$client->responsible_mobile}}">{{$client->name}}</option>
+                                    @else
+                                        <option value="{{$client->id}}" data-phone="{{$client->responsible_mobile}}">{{$client->name}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        @endif
+
+                    </div>
+                    </div>
+
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Vendor Name')}}:</label>
+                                    <input type="text" placeholder="{{translate('Vendor Name')}}" name="Shipment[vendor_name]" class="form-control" value="{{ $shipment->vendor_name }}" disabled/>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Vehicle Number')}}:</label>
+                                    <input type="text" placeholder="{{translate('Vehicle Number')}}" name="Shipment[vehicle_number]" class="form-control" value="{{$shipment->vehicle_number}}" disabled/>
+
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                               <div class="form-group">
+                                    <label>{{translate('Total Docket Number')}}:</label>
+                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" id="total_docket" value="{{$shipment->total_docket}}" disabled />
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Vehicle Model')}}:</label>              
+                                    <select class="form-control kt-select2 select-manifest" name="Shipment[vehicle_model]" id="manifest_id" disabled>
+                                <option value="1" {{$shipment->manifest_id == 1 ? 'selected' : ''}}>
+                                TATA ACE</option>
+                                <option value="2" {{$shipment->manifest_id == 2 ? 'selected' : '' }}> PICKUP</option>
+                              <option value="3" {{$shipment->manifest_id == 3 ? 'selected' : '' }}>407</option>
+                              <option value="4" {{$shipment->manifest_id == 4 ? 'selected' : '' }}>407 LPT</option>
+                              <option value="5" {{$shipment->manifest_id == 5 ? 'selected' : '' }}>
+                            1109</option>
+
+                        </option>
+                                    </select>
+                                   
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Vehicle Type')}}:</label>                                        
+                                    <select class="form-control kt-select2 select-manifest" name="Shipment[vehicle_type]" id="vehicle_type" disabled>
+                        <option value="1" {{$shipment->vehicle_type == 1 ? 'selected' : '' }}>6 FEET</option>
+                             <option value="2" {{$shipment->vehicle_type == 2 ? 'selected' : '' }}> 8FEET</option>
+                              <option value="3" {{$shipment->vehicle_type == 3 ? 'selected' : '' }}>10FEET</option>
+                              <option value="4" {{$shipment->vehicle_type == 4 ? 'selected' : '' }}>14FEET</option>
+                              <option value="5" {{$shipment->vehicle_type == 5 ? 'selected' : '' }}>
+                            17FEET</option>
+                            <option value="6" {{$shipment->vehicle_type == 6 ? 'selected' : '' }}>
+                            20FEET</option> 
+                             <option value="7" {{$shipment->vehicle_type == 7 ? 'selected' : '' }}>
+                            24FEET</option> 
+                             <option value="8" {{$shipment->vehicle_type == 8 ? 'selected' : '' }}>
+                            32FEET</option>
+
+                                        
+                                    </select>
+
+                                   
+                                </div>
+
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Hire Amount')}}:</label>
+                                    <input type="text" placeholder="{{translate('Hire Amount')}}" name="Shipment[hire_amount]" class="form-control" value="{{ $shipment->hire_amount }}" disabled/>
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Advance')}}:</label>
+                                    <input type="text" placeholder="{{translate('Advance Amount')}}" name="Shipment[advance_amount]" class="form-control" value="{{ $shipment->advance_amount }}" disabled/>
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Balance Amount')}}:</label>
+                                    <input type="text" placeholder="{{translate('Balance Amount')}}" name="Shipment[balance_amount]" class="form-control" value="{{ $shipment->balance_amount }}" disabled/>
+
+                                </div>
+                            </div>
+
+
+
+                        </div>
+
+
+                        <div id="kt_repeater_1">
+
+                            <hr>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{translate('Total Package')}}:</label>
+                                        <input id="kt_touchspin_3" placeholder="{{translate('Total Package')}}" type="text" min="0" class="form-control"  name="Shipment[total_package]" value="{{$shipment->total_package}}" disabled/>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>{{translate('Total Weight')}}:</label>
+                                        <input id="kt_touchspin_4" placeholder="{{translate('Total Weight')}}" type="text" min="1" class="form-control total-weight" name="Shipment[total_weight]" value="{{$shipment->total_weight}}" disabled/>
+                                    </div>
+                                </div>
+
+                            <div class="col-md-6">
+                                 <div class="form-group">
+                                    <label>{{translate('Manifest')}}:</label>
+                                    <select class="form-control kt-select2 select-manifest" name="Shipment[manifest_id]" id="manifest_id" disabled>
+                                        <option></option>
+                                        @foreach($manifest as $mn)
+                        <option value="{{$mn->id}}" {{$shipment->manifest_id == $mn->id ? "selected": ''}}>{{$mn->code}}</option>
+                                          
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-0 text-right form-group">
+              <a href="{{ route('admin.thc.index')}}" class="btn btn-sm btn-primary">{{translate('Back')}}</a>
+
+                    </div>
+                </div>
+        </form>
+
     </div>
-    <!--end::Card-->
-
-
-    <!--end::List Widget 19-->
-    @if((Auth::user()->user_type == 'admin'))
-
-    @endif
+</div>
 
 @endsection
 
-@section('modal')
-    @include('modals.delete_modal')
-@endsection
 
 @section('script')
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script>
-        function copyToClipboard(element) {
-            var $temp = $("<input>");
-            $("body").append($temp);
-            $temp.val($(element).text()).select();
-            document.execCommand("copy");
-            $temp.remove();
-            AIZ.plugins.notify('success', '{{translate("Payment Link Copied")}}');
+
+<script type="text/javascript">
+    function selectIsTriggered()
+    {
+//         getAdressess(document.getElementById("client-id").value);
+    }
+    var inputs = document.getElementsByTagName('input');
+
+    for (var i = 0; i < inputs.length; i++) {
+        if (inputs[i].type.toLowerCase() == 'number') {
+            inputs[i].onkeydown = function(e) {
+                if (!((e.keyCode > 95 && e.keyCode < 106) ||
+                        (e.keyCode > 47 && e.keyCode < 58) ||
+                        e.keyCode == 8)) {
+                    return false;
+                }
+            }
         }
-    </script>
+    }
+
+    $('.select-client').select2({
+            placeholder: "Select Client",
+        })
+    {{--@if($user_type == 'admin' || in_array('1005', $staff_permission) )--}}
+        {{--.on('select2:open', () => {--}}
+            {{--$(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.clients.create')}}?redirect=admin.shipments.create"--}}
+                {{--class="btn btn-primary" >+ {{translate('Add New Client')}}</a>--}}
+                {{--</li>`);--}}
+        {{--});--}}
+    {{--@endif--}}
+
+    $('.select-client').change(function(){
+//        var client_phone = $(this).find(':selected').data('phone');
+//        document.getElementById("client_phone").value = client_phone;
+    });
+
+
+    $('.origin').select2({
+        placeholder: "Select Origin",
+    });
+    $('.destination').select2({
+            placeholder: "Select Destination",
+    });
+
+    $('.select-branch').on('change', function() {
+       var dockcount = $("#docket :selected").length;
+
+       $("#total_docket").val(dockcount);
+    });
+    $('.select-branch').select2({
+            placeholder: "Select Docket",
+    });
+    $('.select-manifest').select2({
+            placeholder: "Select Manifest",
+    });
+    {{--@if($user_type == 'admin' || in_array('1006', $staff_permission) )--}}
+        {{--.on('select2:open', () => {--}}
+            {{--$(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.branchs.create')}}?redirect=admin.shipments.create"--}}
+                {{--class="btn btn-primary" >+ {{translate('Add New Docket')}}</a>--}}
+                {{--</li>`);--}}
+        {{--});--}}
+    {{--@endif--}}
+
+
+
+    function calcTotalWeight() {
+        console.log('sds');
+        var elements = $('.weight-listener');
+        var sumWeight = 0;
+        elements.map(function() {
+            sumWeight += parseInt($(this).val());
+            console.log(sumWeight);
+        }).get();
+        $('.total-weight').val(sumWeight);
+    }
+    $(document).ready(function() {
+
+
+
+
+        $('#kt_datepicker_3').datepicker({
+            orientation: "bottom auto",
+            autoclose: true,
+            format: 'yyyy-mm-dd',
+            todayBtn: true,
+            todayHighlight: true,
+            startDate: new Date(),
+        });
+        $( document ).ready(function() {
+
+        });
+
+
+        //Package Types Repeater
+
+        $('#kt_repeater_1').repeater({
+            initEmpty: false,
+
+            show: function() {
+                $(this).slideDown();
+                $('.kt_touchspin_weight').TouchSpin({
+                    buttondown_class: 'btn btn-secondary',
+                    buttonup_class: 'btn btn-secondary',
+                    min: 1,
+                    max: 1000000000,
+                    stepinterval: 50,
+                    maxboostedstep: 10000000,
+                    initval: 1,
+                    prefix: 'Kg'
+                });
+
+                calcTotalWeight();
+            },
+
+            hide: function(deleteElement) {
+                $(this).slideUp(deleteElement);
+            }
+        });
+
+
+        $('body').on('click', '.delete_item', function(){
+            $('.total-weight').val("{{translate('Calculated...')}}");
+            setTimeout(function(){ calcTotalWeight(); }, 500);
+        });
+
+        $('#kt_touchspin_3').TouchSpin({
+            buttondown_class: 'btn btn-secondary',
+            buttonup_class: 'btn btn-secondary',
+
+            min: 0,
+            max: 1000000000,
+            stepinterval: 50,
+            maxboostedstep: 10000000,
+            prefix: '{{currency_symbol()}}'
+        });
+        $('#kt_touchspin_4').TouchSpin({
+            buttondown_class: 'btn btn-secondary',
+            buttonup_class: 'btn btn-secondary',
+
+            min: 1,
+            max: 1000000000,
+            stepinterval: 50,
+            maxboostedstep: 10000000,
+            initval: 1,
+            prefix: 'Kg'
+        });
+        $('.kt_touchspin_weight').TouchSpin({
+            buttondown_class: 'btn btn-secondary',
+            buttonup_class: 'btn btn-secondary',
+
+            min: 1,
+            max: 1000000000,
+            stepinterval: 50,
+            maxboostedstep: 10000000,
+            initval: 1,
+            prefix: 'Kg'
+        });
+
+
+
+        FormValidation.formValidation(
+            document.getElementById('kt_form_1'), {
+                fields: {
+
+                    "Shipment[date]": {
+                        validators: {
+                            notEmpty: {
+                                message: '{{translate("This is required!")}}'
+                            }
+                        }
+                    },
+                    "Shipment[origin]": {
+                        validators: {
+                            notEmpty: {
+                                message: '{{translate("This is required!")}}'
+                            }
+                        }
+                    },
+                    "Shipment[client_id]": {
+                        validators: {
+                            callback: {
+                                message: '{{translate("This is required!")}}',
+                                callback: function(input) {
+                                    // Get the selected options
+                                    if ((input.value !== "")) {
+                                        $('.client-select').removeClass('has-errors');
+                                    } else {
+                                        $('.client-select').addClass('has-errors');
+                                    }
+                                    return (input.value !== "");
+                                }
+                            }
+                        }
+                    },
+
+                    "Shipment[boy_name]": {
+                        validators: {
+                            notEmpty: {
+                                message: '{{translate("This is required!")}}'
+                            }
+                        }
+                    },
+                    "Shipment[total_docket]": {
+                        validators: {
+                            notEmpty: {
+                                message: '{{translate("This is required!")}}'
+                            }
+                        }
+                    },
+                    "Shipment[destination]": {
+                        validators: {
+                            notEmpty: {
+                                message: '{{translate("This is required!")}}'
+                            }
+                        }
+                    },
+                    "Shipment[receiver_name]": {
+                        validators: {
+                            notEmpty: {
+                                message: '{{translate("This is required!")}}'
+                            }
+                        }
+                    },
+                    "Shipment[amount_to_be_collected]": {
+                        validators: {
+                            notEmpty: {
+                                message: '{{translate("This is required!")}}'
+                            }
+                        }
+                    },
+                    "Shipment[total_weight]": {
+                        validators: {
+                            notEmpty: {
+                                message: '{{translate("This is required!")}}'
+                            }
+                        }
+                    },
+                    "Shipment[docket][0]": {
+                        validators: {
+                            notEmpty: {
+                                message: '{{translate("This is required!")}}'
+                            }
+                        }
+                    }
+                },
+
+
+                plugins: {
+                    autoFocus: new FormValidation.plugins.AutoFocus(),
+                    trigger: new FormValidation.plugins.Trigger(),
+                    // Bootstrap Framework Integration
+                    bootstrap: new FormValidation.plugins.Bootstrap(),
+                    // Validate fields when clicking the Submit button
+                    submitButton: new FormValidation.plugins.SubmitButton(),
+                    // Submit the form when all fields are valid
+                    defaultSubmit: new FormValidation.plugins.DefaultSubmit(),
+                    icon: new FormValidation.plugins.Icon({
+                        valid: '',
+                        invalid: 'fa fa-times',
+                        validating: 'fa fa-refresh',
+                    }),
+                }
+            }
+        );
+    });
+</script>
 @endsection
