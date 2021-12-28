@@ -142,41 +142,18 @@
                     <th>{{translate('Total Weight')}}</th>
 
                     <th class="text-center">{{translate('Created At')}}</th>
-                    @if($status != "all") <th class="text-center">{{translate('Options')}}</th> @endif
+                  <th class="text-center">{{translate('Options')}}</th> 
                 </tr>
                 </thead>
                 <tbody>
-                @php
-                    $client_id = 0;
-                @endphp
-
+              
 
                 @foreach($shipments as $key=>$shipment)
-                    @if($client_id != $shipment->client_id)
-                        <tr class="bg-light">
-                            <td><label class="checkbox checkbox-success"><input type="checkbox" onclick="check_client(this,{{$shipment->client_id}})"/><span></span></label></td>
-                            <th colspan="4">
-                                @if($user_type == 'admin' || in_array('1100', $staff_permission) || in_array('1005', $staff_permission) )
-                                    <a href="{{route('admin.clients.show',$shipment->client_id)}}">{{$shipment->client->name}}</a>
-                                @else
-                                    {{$shipment->client->name}}
-                                @endif
-                            </th>
-                        </tr>
-                        @php
-                            $client_id = $shipment->client_id;
-                        @endphp
-                    @endif
+                   
 
 
                     <tr>
-                        <td>
-                            @if($shipment->mission_id)
-                                -
-                            @else
-                                <label class="checkbox checkbox-success"><input data-missionid="{{$shipment->mission_id}}" data-clientaddresssender="" data-clientaddress="{{$shipment->reciver_address}}" data-clientname="{{$shipment->receiver_name}}" data-clientstatehidden="{{$shipment->to_state_id}}" data-clientstate="{{$shipment->to_state->name ?? '' }}" data-clientareahidden="{{$shipment->to_area_id ?? '' }}" data-clientarea="{{$shipment->to_area->name ?? '' }}" data-clientid="{{$shipment->client->id ?? '' }}" data-paymentmethodid="{{$shipment->payment_method_id ?? '' }}" data-branchid="{{$shipment->branch_id ?? '' }}" data-branchname="{{$shipment->branch->name  ?? '' }}"  type="checkbox" class="sh-check checkbox-client-id-{{$shipment->client_id}}" name="checked_ids[]" value="{{$shipment->id}}" /><span></span></label>
-                            @endif
-                        </td>
+                       <td></td>
                         <td width="3%"><a href="{{url('admin/manifest/'.$shipment->id )}}">{{ ($key+1) + ($shipments->currentPage() - 1)*$shipments->perPage() }}</a></td>
                         <td width="5%"><a href="{{url('admin/manifest/'. $shipment->id )}}">{{$shipment->code}}</a></td>
                         <td>{{$shipment->date}}</td>
@@ -185,7 +162,7 @@
                             <td>{{$shipment->destinations->name}}</td>
                         @endif
 
-                        <td>{{$shipment->amount_to_be_collected }}</td>
+                        <td>{{$shipment->total_package }}</td>
 
 
                         <td>{{$shipment->total_weight }}</td>
@@ -194,7 +171,6 @@
                         <td class="text-center">
                             {{$shipment->created_at->format('Y-m-d')}}
                         </td>
-                        @if($status != "all")
                             <td class="text-center">
                                 <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.shipments.print', ['shipment'=>$shipment->id, 'invoice'])}}" title="{{ translate('Show') }}">
                                     <i class="las la-print"></i>
@@ -203,14 +179,11 @@
                                     <i class="las la-eye"></i>
                                 </a>
 
-                                {{--@if($status != \App\Shipment::APPROVED_STATUS && $status != \App\Shipment::CAPTAIN_ASSIGNED_STATUS && $status != \App\Shipment::CLOSED_STATUS && $status != \App\Shipment::RECIVED_STATUS && $status != \App\Shipment::IN_STOCK_STATUS && $status != \App\Shipment::DELIVERED_STATUS && $status != \App\Shipment::SUPPLIED_STATUS && $status != \App\Shipment::RETURNED_STATUS )--}}
                                     <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.manifest.edit', $shipment->id)}}" title="{{ translate('Edit') }}">
                                         <i class="las la-edit"></i>
                                     </a>
-                                {{--@endif--}}
 
                             </td>
-                        @endif
                     </tr>
 
 

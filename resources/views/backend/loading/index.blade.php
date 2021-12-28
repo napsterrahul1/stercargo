@@ -128,7 +128,6 @@
             <table class="table mb-0 aiz-table">
                 <thead>
                 <tr>
-                    <th width="3%"></th>
                     <th width="3%">#</th>
                     <th>{{translate('Code')}}</th>
                     <th>{{translate('Date')}}</th>
@@ -148,6 +147,8 @@
                     @endif
                     <th class="text-center">{{translate('Created At')}}</th>
                     @if($status != "all") <th class="text-center">{{translate('Options')}}</th> @endif
+                  <th  width="10%" class="text-center">{{translate('Options')}}</th>
+
                 </tr>
                 </thead>
                 <tbody>
@@ -157,31 +158,10 @@
 
 
                 @foreach($shipments as $key=>$shipment)
-                    @if($client_id != $shipment->client_id)
-                        <tr class="bg-light">
-                            <td><label class="checkbox checkbox-success"><input type="checkbox" onclick="check_client(this,{{$shipment->client_id}})"/><span></span></label></td>
-                            <th colspan="4">
-                                @if($user_type == 'admin' || in_array('1100', $staff_permission) || in_array('1005', $staff_permission) )
-                                    <a href="{{route('admin.clients.show',$shipment->client_id)}}">{{$shipment->client->name}}</a>
-                                @else
-                                    {{$shipment->client->name}}
-                                @endif
-                            </th>
-                        </tr>
-                        @php
-                            $client_id = $shipment->client_id;
-                        @endphp
-                    @endif
+                   
 
 
                     <tr>
-                        <td>
-                            @if($shipment->mission_id)
-                                -
-                            @else
-                                <label class="checkbox checkbox-success"><input data-missionid="{{$shipment->mission_id}}" data-clientaddresssender="" data-clientaddress="{{$shipment->reciver_address}}" data-clientname="{{$shipment->receiver_name}}" data-clientstatehidden="{{$shipment->to_state_id}}" data-clientstate="{{$shipment->to_state->name ?? '' }}" data-clientareahidden="{{$shipment->to_area_id ?? '' }}" data-clientarea="{{$shipment->to_area->name ?? '' }}" data-clientid="{{$shipment->client->id ?? '' }}" data-paymentmethodid="{{$shipment->payment_method_id ?? '' }}" data-branchid="{{$shipment->branch_id ?? '' }}" data-branchname="{{$shipment->branch->name  ?? '' }}"  type="checkbox" class="sh-check checkbox-client-id-{{$shipment->client_id}}" name="checked_ids[]" value="{{$shipment->id}}" /><span></span></label>
-                            @endif
-                        </td>
                         <td width="3%"><a href="{{url('admin/loading/'.$shipment->id )}}">{{ ($key+1) + ($shipments->currentPage() - 1)*$shipments->perPage() }}</a></td>
                         <td width="5%"><a href="{{url('admin/loading/'. $shipment->id )}}">{{$shipment->code}}</a></td>
                         <td>{{$shipment->date}}</td>
@@ -203,7 +183,6 @@
                         <td class="text-center">
                             {{$shipment->created_at->format('Y-m-d')}}
                         </td>
-                        @if($status != "all")
                             <td class="text-center">
                                 <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.shipments.print', ['shipment'=>$shipment->id, 'invoice'])}}" title="{{ translate('Show') }}">
                                     <i class="las la-print"></i>
@@ -219,7 +198,6 @@
                                 {{--@endif--}}
 
                             </td>
-                        @endif
                     </tr>
 
 

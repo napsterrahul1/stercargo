@@ -67,12 +67,9 @@ $d = new DNS1D();
 
                 <div class="pb-6 d-flex justify-content-between">
                     <div class="d-flex flex-column flex-root">
-                        <span class="mb-4 text-dark font-weight-bold">{{translate('Customer/Sender')}}</span>
-                        @if(Auth::user()->user_type == 'admin' || in_array('1005', json_decode(Auth::user()->staff->role->permissions ?? "[]")))
-                            <a class="text-danger font-weight-boldest font-size-lg" href="{{route('admin.clients.show',$shipment->client_id)}}">{{$shipment->client->name}}</a>
-                        @else
-                            <span class="text-danger font-weight-boldest font-size-lg">{{$shipment->client->name}}</span>
-                        @endif
+                        <span class="mb-4 text-dark font-weight-bold">{{translate('Sender')}}</span>
+                  <span class="text-danger font-weight-boldest font-size-lg">{{$shipment->sender_name}}</span>
+
 
                     </div>
                     <div class="d-flex flex-column flex-root">
@@ -147,7 +144,7 @@ $d = new DNS1D();
         <div class="px-8 py-8 row justify-content-center py-md-10 px-md-0">
             <div class="col-md-10">
                 <div class="table-responsive">
-                    <table class="table">
+                 <!--    <table class="table">
                         <thead>
                             <tr>
                                 <th class="pl-0 font-weight-bold text-muted text-uppercase">{{translate('Package ')}}</th>
@@ -167,7 +164,7 @@ $d = new DNS1D();
                             @endforeach
 
                         </tbody>
-                    </table>
+                    </table> -->
                 </div>
             </div>
         </div>

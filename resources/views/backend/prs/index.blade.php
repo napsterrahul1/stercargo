@@ -128,7 +128,6 @@
         <table class="table mb-0 aiz-table">
             <thead>
                 <tr>
-                    <th width="3%"></th>
                     <th width="3%">#</th>
                     <th>{{translate('Code')}}</th>
                     <th>{{translate('PRS Date')}}</th>
@@ -149,41 +148,17 @@
                     @endif
                     <th class="text-center">{{translate('Created At')}}</th>
                     @if($status != "all") <th class="text-center">{{translate('Options')}}</th> @endif
+                    <th  width="10%" class="text-center">{{translate('Options')}}</th>
+
                 </tr>
             </thead>
             <tbody>
-                @php
-                    $client_id = 0;
-                @endphp
+            
 
 
                 @foreach($shipments as $key=>$shipment)
-                    @if($client_id != $shipment->client_id)
-                        <tr class="bg-light">
-                            <td><label class="checkbox checkbox-success"><input type="checkbox" onclick="check_client(this,{{$shipment->client_id}})"/><span></span></label></td><td></td>
-                            <th colspan="4">
-                                @if($user_type == 'admin' || in_array('1100', $staff_permission) || in_array('1005', $staff_permission) )
-                                    <a href="{{route('admin.clients.show',$shipment->client_id)}}">{{$shipment->client->name}}</a>
-                                @else
-                                    {{$shipment->client->name}}
-                                @endif
-                            </th>
-                        </tr>
-                        @php
-                            $client_id = $shipment->client_id;
-                        @endphp
-                    @endif
-
 
                     <tr>
-                        <td>
-                            @if($shipment->mission_id)
-                                -
-                            @else
-                                <label class="checkbox checkbox-success"><input data-missionid="{{$shipment->mission_id}}" data-clientaddresssender="" data-clientaddress="{{$shipment->reciver_address}}" data-clientname="{{$shipment->receiver_name}}" data-clientstatehidden="{{$shipment->to_state_id}}" data-clientstate="{{$shipment->to_state->name ?? '' }}" data-clientareahidden="{{$shipment->to_area_id ?? '' }}" data-clientarea="{{$shipment->to_area->name ?? '' }}" data-clientid="{{$shipment->client->id ?? '' }}" data-paymentmethodid="{{$shipment->payment_method_id ?? '' }}" data-branchid="{{$shipment->branch_id ?? '' }}" data-branchname="{{$shipment->branch->name  ?? '' }}"  type="checkbox" class="sh-check checkbox-client-id-{{$shipment->client_id}}" name="checked_ids[]" value="{{$shipment->id}}" /><span></span></label>
-                            @endif
-
-                        </td>
                         <td width="3%"><a href="{{url('admin/prs/'.$shipment->id )}}">{{ ($key+1) + ($shipments->currentPage() - 1)*$shipments->perPage() }}</a></td>
 
                         <td width="5%"><a href="{{url('admin/prs/'. $shipment->id )}}">{{$shipment->code}}</a></td>
@@ -194,17 +169,20 @@
                             {{$shipment->vendor_name }}
                         </td>
                         <td>
+
+                         <?php $pcs =  \App\Models\Docket::docketPackage($shipment->docket); ?>
+                            {{$pcs ? $pcs : 0 }}
+ 
+                        </td>
+                        <td>
                             <?php $weight =  \App\Models\Docket::docketWeight($shipment->docket); ?>
                             {{$weight ? $weight : 0 }}
-                        </td> <td>
+                        </td> 
+                        <td>
                             <?php $amount =  \App\Models\Docket::docketAmount($shipment->docket); ?>
                             {{$amount ? $amount : 0 }}
                         </td>
-
-
-                        <td>{{format_price($shipment->tax + $shipment->shipping_cost + $shipment->insurance) }}</td>
-
-                        <td>@if($shipment->paid == 1) {{translate('Paid')}} @else - @endif</td>
+                            <td>@if($shipment->paid == 1) {{translate('Paid')}} @else - @endif</td>
 
                             @if($status == \App\Shipment::CAPTAIN_ASSIGNED_STATUS || $status == \App\Shipment::RECIVED_STATUS)
                                 <td><a href="{{route('admin.captains.show', $shipment->captain_id)}}">@isset($shipment->captain_id) {{$shipment->captain->name}} @endisset</a></td>
@@ -214,24 +192,17 @@
                         @endif
                         <td class="text-center">
                             {{$shipment->created_at->format('Y-m-d')}}
-                        </td>
-                        @if($status != "all")
-                            <td class="text-center">
-                                <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.shipments.print', ['shipment'=>$shipment->id, 'invoice'])}}" title="{{ translate('Show') }}">
-                                    <i class="las la-print"></i>
-                                </a>
+                        </td>  <td class="text-center">
+                               
                                 <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.prs.show', $shipment->id)}}" title="{{ translate('Show') }}">
                                     <i class="las la-eye"></i>
                                 </a>
 
-                                @if($status != \App\Shipment::APPROVED_STATUS && $status != \App\Shipment::CAPTAIN_ASSIGNED_STATUS && $status != \App\Shipment::CLOSED_STATUS && $status != \App\Shipment::RECIVED_STATUS && $status != \App\Shipment::IN_STOCK_STATUS && $status != \App\Shipment::DELIVERED_STATUS && $status != \App\Shipment::SUPPLIED_STATUS && $status != \App\Shipment::RETURNED_STATUS )
                                     <a class="btn btn-soft-primary btn-icon btn-circle btn-sm" href="{{route('admin.prs.edit', $shipment->id)}}" title="{{ translate('Edit') }}">
                                         <i class="las la-edit"></i>
                                     </a>
-                                @endif
 
                             </td>
-                        @endif
                     </tr>
 
 
@@ -254,13 +225,9 @@
                             <input type="hidden" name="Mission[to_branch_id]" class="form-control branch_hidden" />
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label>{{translate('Customer/Sender')}}:</label>
-                                    <input type="hidden" name="Mission[client_id]" value="" id="pick_up_client_id_hidden">
-                                    <select class="form-control" id="pick_up_client_id" disabled>
-                                        @foreach(\App\Client::all() as $client)
-                                        <option value="{{$client->id}}">{{$client->name}}</option>
-                                        @endforeach
-                                    </select>
+                                    <label>{{translate('Sender')}}:</label>
+                                    <input type="hidden" name="Mission[sender_name]" value="" id="pick_up_client_id_hidden">
+                                  
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -296,8 +263,8 @@
                             {{-- <div class="col-md-12">
                                 <div class="form-group">
                                     <label>{{translate('Customer/Sender')}}:</label>
-                                    <input type="hidden" name="Mission[client_id]" value="" id="pick_up_client_id_hidden">
-                                    <select style="background:#f3f6f9;color:#3f4254;" name="Mission[client_id]" class="form-control" id="pick_up_client_id" disabled>
+                                    <input type="hidden" name="Mission[sender_name]" value="" id="pick_up_client_id_hidden">
+                                    <select style="background:#f3f6f9;color:#3f4254;" name="Mission[sender_name]" class="form-control" id="pick_up_client_id" disabled>
                                         @foreach(\App\Client::all() as $client)
                                         <option value="{{$client->id}}">{{$client->name}}</option>
                                         @endforeach
@@ -359,9 +326,9 @@
                             <input type="hidden" name="Mission[to_branch_id]" class="form-control branch_hidden" />
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label>{{translate('Customer/Sender')}}:</label>
-                                    <input type="hidden" name="Mission[client_id]" value="" id="pick_up_client_id_hidden">
-                                    <select name="Mission[client_id]" class="form-control" id="pick_up_client_id" disabled>
+                                    <label>{{translate('Sender')}}:</label>
+                                    <input type="hidden" name="Mission[sender_name]" value="" id="pick_up_client_id_hidden">
+                                    <select name="Mission[sender_name]" class="form-control" id="pick_up_client_id" disabled>
                                         @foreach(\App\Client::all() as $client)
                                         <option value="{{$client->id}}">{{$client->name}}</option>
                                         @endforeach
@@ -401,8 +368,8 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label>{{translate('Customer/Sender')}}:</label>
-                                    <input type="hidden" name="Mission[client_id]" value="" id="pick_up_client_id_hidden">
-                                    <select name="Mission[client_id]" class="form-control" id="pick_up_client_id" disabled>
+                                    <input type="hidden" name="Mission[sender_name]" value="" id="pick_up_client_id_hidden">
+                                    <select name="Mission[sender_name]" class="form-control" id="pick_up_client_id" disabled>
                                         @foreach(\App\Client::all() as $client)
                                         <option value="{{$client->id}}">{{$client->name}}</option>
                                         @endforeach
@@ -775,15 +742,15 @@
         }
     }
 
-    function check_client(parent_checkbox,client_id) {
-        // if(parent_checkbox.checked){
-        //     console.log("checked");
-        // }
-        checkboxs = document.getElementsByClassName("checkbox-client-id-"+client_id);
-        for (let index = 0; index < checkboxs.length; index++) {
-            checkboxs[index].checked = parent_checkbox.checked;
-        }
-    }
+    // function check_client(parent_checkbox,client_id) {
+    //     // if(parent_checkbox.checked){
+    //     //     console.log("checked");
+    //     // }
+    //     checkboxs = document.getElementsByClassName("checkbox-client-id-"+client_id);
+    //     for (let index = 0; index < checkboxs.length; index++) {
+    //         checkboxs[index].checked = parent_checkbox.checked;
+    //     }
+    // }
 
     $(document).ready(function() {
 

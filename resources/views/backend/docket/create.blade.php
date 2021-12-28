@@ -19,13 +19,13 @@
                 {!!redirect_input()!!}
                 <div class="card-body ">
                     <div class="row">
-                        <div class="col-md-3">
+                     <!--    <div class="col-md-3">
                             <div class="form-group">
                                 <label>{{translate('Docket No')}}:</label>
                                 <input type="text" id="code" class="form-control"
                                        placeholder="{{translate('Docket No')}}" name="code">
                             </div>
-                        </div>
+                        </div> -->
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>{{translate('Date')}}:</label>
@@ -76,15 +76,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-3">
-
-                    <div class="form-group">
-                        <label>{{translate('Freight Paid By')}}:</label>
-                        <input id="destination" type="text" class="form-control"
-                               placeholder="{{translate('Freight Paid By')}}" name="freight_paid_by">
-                    </div>
-                    </div>
-
+                   
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>{{translate('Sender')}}:</label>
@@ -95,10 +87,23 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>{{translate('Receiver')}}:</label>
-                                <input type="text" class="form-control" placeholder="{{translate('Receiver')}}"
-                                       name="receiver">
+                                <input type="text" class="form-control" placeholder="{{translate('Receiver')}}" name="receiver" id="receiver">
                             </div>
                         </div>
+
+                         <div class="col-md-3">
+
+                    <div class="form-group">
+                        <label>{{translate('Freight Paid By')}}:</label>
+                               <select name="freight_paid_by" placeholder="{{translate('Freight Paid By')}}" class="form-control" id="freight_paid_by">
+                                   <option value="">Select</option>
+                                   <option value="0">sender</option>
+                                   <option value="1">Receiver</option>
+                                   <option value="2">Other</option>
+                               </select>
+                    </div>
+                    </div>
+
 
                         <div class="col-md-3">
                             <div class="form-group">
@@ -137,7 +142,7 @@
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>{{translate('PCS')}}:</label>
-                                <input type="text" class="form-control fright" placeholder="{{translate('PCS')}}" name="pcs" id="pcs">
+                                <input type="text" class="form-control fright" placeholder="{{translate('PCS')}}" name="pcs" id="pcs" value="1">
                             </div>
                         </div>
                         <div class="col-md-3">
@@ -193,7 +198,7 @@
                     <div class="form-group">
                         <label>{{translate('FOV')}}:</label>
                         <input type="number" class="form-control" placeholder="{{translate('FOV')}}" name="FOV"
-                               min="0.0" max="100" id="fov">
+                               id="fov">
                     </div>
                     </div>
                         <div class="col-md-3">
@@ -387,8 +392,8 @@
 
     });
     function calculatefov(){
-        var pPos = parseInt($('#freight_amount').val()); 
-        var pEarned = parseInt($('#fov').val());
+        var pPos = parseFloat($('#freight_amount').val()); 
+        var pEarned = parseFloat($('#fov').val());
         var perc="";
         if(isNaN(pPos) || isNaN(pEarned)){
             perc=" ";
@@ -397,15 +402,15 @@
            }
         
         $('#fov_charges').val(perc);
-       var fov_charge = parseInt($('#fov_charges').val());
+       var fov_charge = parseFloat($('#fov_charges').val());
 
 
         var total = pPos + fov_charge;
         $('#total_amount').val(total);
     }
     function calculatefuel(){
-        var pPos = parseInt($('#total_amount').val()); 
-        var pEarned = parseInt($('#fuel').val());
+        var pPos = parseFloat($('#total_amount').val()); 
+        var pEarned = parseFloat($('#fuel').val());
         var perc="";
         if(isNaN(pPos) || isNaN(pEarned)){
             perc=" ";
@@ -421,11 +426,11 @@
     });
 
       function calculatefinalamount(){
-        var total_amount = parseInt($('#total_amount').val()); 
-        var fuel_charges = parseInt($('#fuel_charges').val());
-        var lr_charges = parseInt($('#lr_charges').val());
-        var oda_charge = parseInt($('#oda_charge').val());
-        var door_charges = parseInt($('#door_dly_charge').val());
+        var total_amount = parseFloat($('#total_amount').val()); 
+        var fuel_charges = parseFloat($('#fuel_charges').val());
+        var lr_charges = parseFloat($('#lr_charges').val());
+        var oda_charge = parseFloat($('#oda_charge').val());
+        var door_charges = parseFloat($('#door_dly_charge').val());
         var perc="";
         if(isNaN(fuel_charges) || isNaN(lr_charges) || isNaN(oda_charge) || isNaN(door_charges) || isNaN(total_amount)){
             perc=" ";
@@ -441,7 +446,45 @@
             });
 
 
+// $('#fuel').keyup(function(){
+//   if ($(this).val() > 20){
+//     alert("No numbers above 20");
+//     $(this).val('20');
+//   }
+// });
 
+// $('#fov').keyup(function(){
+//   if ($(this).val() > 0.3){
+//     alert("No numbers above 0.3");
+//     $(this).val('0.3');
+//   }
+// });
+$("#freight_paid_by").on('change', function(){
+    var sender = $("#sender").val();
+    var receiver = $("#receiver").val();
+    var freight = $(this).val();
+    if(freight == 0)
+    {
+        if(!sender)
+        {
+            alert('Please add sender')
+        }
+        $("#billing_party").val(sender);
+        
+
+    }else if(freight == 1){
+
+        if(!receiver)
+        {
+            alert('Please add receiver')
+        }
+        $("#billing_party").val(receiver);
+
+    }else{
+    $("#billing_party").val('');
+
+    }
+});
 
     </script>
 @endsection

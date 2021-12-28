@@ -70,7 +70,7 @@ class PRS extends Model
     const CLIENT_STATUS_SUPPLIED = 8;
 
     protected $table = 'prs';
-    protected $fillable = ['date','vehicle_number','vendor_name','hire_amount','docket','client_id','receiver_name','boy_name','total_docket','amount_to_be_collected','total_weight'];
+    protected $fillable = ['date','vehicle_number','vendor_name','hire_amount','docket','sender_name','receiver_name','boy_name','total_docket','amount_to_be_collected','total_weight','hire_amount','vendor_type'];
 
     public function client()
     {
@@ -190,6 +190,21 @@ class PRS extends Model
         ];
         return $array;
     }
+
+      public static function code($id){
+        //get last record
+        $record = self::where('code','!=','')->latest()->first();
+        if($record)
+            $expNum =  ltrim($record->code,'PRS');
+        else
+            $expNum = [];
+        if(!$expNum){
+            return 'PRS0001';
+        }
+            $number = str_pad(isset($expNum) ? $expNum+1 : 1, 4, '0', STR_PAD_LEFT);
+           return $id.$number;
+    }
+
 
 
 }

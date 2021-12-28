@@ -86,7 +86,7 @@
                                             }
 
                                         @endphp
-                                        <input type="text" placeholder="{{translate('THC Date')}}" value="{{ $shipping_data->toDateString() }}" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
+                                        <input type="text" placeholder="{{translate('THC Date')}}" value="" name="Shipment[date]" autocomplete="off" class="form-control" id="kt_datepicker_3" />
                                         <div class="input-group-append">
                                             <span class="input-group-text">
                                                 <i class="la la-calendar"></i>
@@ -101,22 +101,20 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('THC Number')}}:</label>
-                                    <input type="text" placeholder="{{translate('Receiver Name')}}" name="Shipment[receiver_name]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('THC Number')}}" name="Shipment[thc_number]" class="form-control" />
 
                                 </div>
                             </div>
 
                             <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>{{translate('Manifest')}}:</label>
-                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket][]" multiple>
+                                 <div class="form-group">
+                                    <label>{{translate('Docket Number')}}:</label>
+                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket][]" id="docket" multiple>
                                         <option></option>
-                                        @foreach($branchs as $branch)
-
-                                                <option @if(\App\ShipmentSetting::getVal('def_branch')==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
-
+                                        @foreach($dockets as $docket)
+                        <option value="{{$docket->id}}">{{$docket->code}}</option>
+                                          
                                         @endforeach
-
                                     </select>
                                 </div>
                             </div>
@@ -144,54 +142,66 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Vendor Name')}}:</label>
-                                    <input type="text" placeholder="{{translate('Receiver Name')}}" name="Shipment[receiver_name]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Vendor Name')}}" name="Shipment[vendor_name]" class="form-control" />
 
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Vehicle Number')}}:</label>
-                                    <input type="text" placeholder="{{translate('THC Staff Name')}}" name="Shipment[boy_name]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Vehicle Number')}}" name="Shipment[vehicle_number]" class="form-control" />
 
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                               <div class="form-group">
                                     <label>{{translate('Total Docket Number')}}:</label>
-                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" id="total_docket" />
 
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>{{translate('Vehicle Model')}}:</label>
-                                    <select id="origin" name="Shipment[origin]" class="form-control select-state origin">
-                                        <option value=""></option>
-                                        @foreach($branchs as $branch)
-                                                <option value="{{$branch->id}}">{{$branch->name}}</option>
-                                        @endforeach
+                                    <label>{{translate('Vehicle Model')}}:</label>              
+                                    <select class="form-control kt-select2 select-manifest" name="Shipment[vehicle_model]" id="manifest_id">
+                                        <option value="1">
+                                            TATA ACE</option>
+                                             <option value="2"> PICKUP</option>
+                                              <option value="3">407</option>
+                                              <option value="4">407 LPT</option><option value="5">
+                                            1109</option>
+
+                                        </option>
                                     </select>
+                                   
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>{{translate('Vehicle Type')}}:</label>
-                                    <select id="destination" name="Shipment[destination]" class="form-control select-state destination">
-                                        <option value=""></option>
-                                        @foreach($branchs as $branch)
-                                            <option value="{{$branch->id}}">{{$branch->name}}</option>
-                                        @endforeach
+                                    <label>{{translate('Vehicle Type')}}:</label>                                        
+                                    <select class="form-control kt-select2 select-manifest" name="Shipment[vehicle_type]" id="vehicle_type">
+                                        <option value="1">6 FEET</option>
+                                             <option value="2"> 8FEET</option>
+                                              <option value="3">10FEET</option>
+                                              <option value="4">14FEET</option><option value="5">
+                                            17FEET</option>
+                                            <option value="6">
+                                            20FEET</option>  <option value="7">
+                                            24FEET</option>  <option value="8">
+                                            32FEET</option>
 
                                     </select>
+
+                                   
                                 </div>
 
                             </div>
 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>{{translate('Hire AMount')}}:</label>
-                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
+                                    <label>{{translate('Hire Amount')}}:</label>
+                                    <input type="text" placeholder="{{translate('Hire Amount')}}" name="Shipment[hire_amount]" class="form-control" />
 
                                 </div>
                             </div>
@@ -199,7 +209,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Advance')}}:</label>
-                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Advance Amount')}}" name="Shipment[advance_amount]" class="form-control" />
 
                                 </div>
                             </div>
@@ -207,7 +217,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Balance Amount')}}:</label>
-                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Balance Amount')}}" name="Shipment[balance_amount]" class="form-control" />
 
                                 </div>
                             </div>
@@ -224,7 +234,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>{{translate('Total Package')}}:</label>
-                                        <input id="kt_touchspin_3" placeholder="{{translate('Total Amount')}}" type="text" min="0" class="form-control" value="0" name="Shipment[amount_to_be_collected]" />
+                                        <input id="kt_touchspin_3" placeholder="{{translate('Total Package')}}" type="text" min="0" class="form-control" value="0" name="Shipment[total_package]" />
                                     </div>
                                 </div>
 
@@ -234,6 +244,19 @@
                                         <input id="kt_touchspin_4" placeholder="{{translate('Total Weight')}}" type="text" min="1" class="form-control total-weight" value="1" name="Shipment[total_weight]" />
                                     </div>
                                 </div>
+
+                            <div class="col-md-6">
+                                 <div class="form-group">
+                                    <label>{{translate('Manifest')}}:</label>
+                                    <select class="form-control kt-select2 select-manifest" name="Shipment[manifest_id]" id="manifest_id">
+                                        <option></option>
+                                        @foreach($manifest as $mn)
+                        <option value="{{$mn->id}}">{{$mn->code}}</option>
+                                          
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
 
                             </div>
                         </div>
@@ -294,9 +317,18 @@
     $('.destination').select2({
             placeholder: "Select Destination",
     });
+
+    $('.select-branch').on('change', function() {
+       var dockcount = $("#docket :selected").length;
+
+       $("#total_docket").val(dockcount);
+    });
     $('.select-branch').select2({
-        placeholder: "Select Docket",
-    })
+            placeholder: "Select Docket",
+    });
+    $('.select-manifest').select2({
+            placeholder: "Select Manifest",
+    });
     {{--@if($user_type == 'admin' || in_array('1006', $staff_permission) )--}}
         {{--.on('select2:open', () => {--}}
             {{--$(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.branchs.create')}}?redirect=admin.shipments.create"--}}

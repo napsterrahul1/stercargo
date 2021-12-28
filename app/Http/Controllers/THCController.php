@@ -43,6 +43,8 @@ use App\AddressClient;
 use App\Http\Helpers\UserRegistrationHelper;
 use Carbon\Carbon;
 use App\Exports\ShipmentsExportExcel;
+use App\Models\Docket;
+use App\Models\Manifest;
 
 class THCController extends Controller
 {
@@ -91,7 +93,10 @@ class THCController extends Controller
     {
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.thc.create', compact('branchs', 'clients'));
+        $dockets = Docket::get();
+        $manifest = Manifest::get();
+
+        return view('backend.thc.create', compact('branchs', 'clients','dockets','manifest'));
     }
 
     /**
@@ -103,6 +108,7 @@ class THCController extends Controller
     public function store(Request $request)
     {
 //        dd($request->all());
+      $amount = Docket::docketWeight( implode(',',$request->Shipment['docket']));
 
         try {
             DB::beginTransaction();
@@ -110,6 +116,7 @@ class THCController extends Controller
             $model->fill($_POST['Shipment']);
             $model->docket = implode(',',$request->Shipment['docket']);
             $model->code = rand(1,9999);
+            $model->total_weight = $amount;
 
             if (!$model->save()) {
                 return response()->json(['message' => new \Exception()] );
@@ -118,22 +125,22 @@ class THCController extends Controller
 
             DB::commit();
 
-            $counter = 0;
-            if (isset($_POST['Package'])) {
-                if (!empty($_POST['Package'])) {
-                    foreach ($_POST['Package'] as $package) {
-                        $package_shipment = new PRSPackage();
-                        $package_shipment->fill($package);
-                        $package_shipment->foreign_id = $model->id;
-                        $package_shipment->type = 2;
-                        if (!$package_shipment->save()) {
-                            throw new \Exception();
-                        }
-                    }
-                }
-            }
+            // $counter = 0;
+            // if (isset($_POST['Package'])) {
+            //     if (!empty($_POST['Package'])) {
+            //         foreach ($_POST['Package'] as $package) {
+            //             $package_shipment = new PRSPackage();
+            //             $package_shipment->fill($package);
+            //             $package_shipment->foreign_id = $model->id;
+            //             $package_shipment->type = 2;
+            //             if (!$package_shipment->save()) {
+            //                 throw new \Exception();
+            //             }
+            //         }
+            //     }
+            // }
 
-            flash(translate("PRS added successfully"))->success();
+            flash(translate("THC added successfully"))->success();
             return redirect()->route('admin.thc.show', $model->id);
         } catch (\Exception $e) {
             DB::rollback();
@@ -156,7 +163,13 @@ class THCController extends Controller
     public function show($id)
     {
         $shipment = THC::find($id);
-        return view('backend.thc.show', compact('shipment'));
+        $branchs = Branch::where('is_archived', 0)->get();
+        $clients = Client::where('is_archived', 0)->get();
+        $dockets = Docket::get();
+        $manifest = Manifest::get();
+
+
+        return view('backend.thc.show', compact('branchs', 'clients', 'shipment','dockets','manifest'));
     }
 
     public function prints($shipment, $type = 'invoice')
@@ -182,7 +195,11 @@ class THCController extends Controller
         $shipment = THC::find($id);
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.thc.edit', compact('branchs', 'clients', 'shipment'));
+        $dockets = Docket::get();
+        $manifest = Manifest::get();
+
+
+        return view('backend.thc.edit', compact('branchs', 'clients', 'shipment','dockets','manifest'));
     }
 
     /**
@@ -194,12 +211,15 @@ class THCController extends Controller
      */
     public function update(Request $request, $shipment)
     {
+      $amount = Docket::docketWeight( implode(',',$request->Shipment['docket']));
 
         try {
             DB::beginTransaction();
             $model = THC::find($shipment);
             $model->fill($_POST['Shipment']);
             $model->docket = implode(',',$request->Shipment['docket']);
+            $model->total_weight = $amount;
+
             if (!$model->save()) {
                 throw new \Exception();
             }
@@ -207,26 +227,26 @@ class THCController extends Controller
                 $pack->delete();
             }
             $all = PRSPackage::where('type',2)->where('foreign_id',$model->id)->delete();
-            $counter = 0;
-            if (isset($_POST['Package'])) {
-                if (!empty($_POST['Package'])) {
+            // $counter = 0;
+            // if (isset($_POST['Package'])) {
+            //     if (!empty($_POST['Package'])) {
 
-                    foreach ($_POST['Package'] as $package) {
-                        $package_shipment = new PRSPackage();
-                        $package_shipment->fill($package);
-                        $package_shipment->foreign_id = $model->id;
-                        $package_shipment->type = 2;
-                        if (!$package_shipment->save()) {
-                            throw new \Exception();
-                        }
-                        $counter++;
-                    }
-                }
-            }
+            //         foreach ($_POST['Package'] as $package) {
+            //             $package_shipment = new PRSPackage();
+            //             $package_shipment->fill($package);
+            //             $package_shipment->foreign_id = $model->id;
+            //             $package_shipment->type = 2;
+            //             if (!$package_shipment->save()) {
+            //                 throw new \Exception();
+            //             }
+            //             $counter++;
+            //         }
+            //     }
+            // }
 
 //            event(new UpdateShipment($model));
             DB::commit();
-            flash(translate("PRS Updated successfully"))->success();
+            flash(translate("THC Updated successfully"))->success();
             $route = 'admin.thc.index';
             return execute_redirect($request, $route);
         } catch (\Exception $e) {

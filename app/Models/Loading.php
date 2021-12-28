@@ -69,7 +69,7 @@ class Loading extends Model
     const CLIENT_STATUS_SUPPLIED = 8;
 
     protected $table = 'loading';
-    protected $fillable = ['date','docket','client_id','receiver_name','boy_name','total_docket','amount_to_be_collected','total_weight','origin','destination'];
+    protected $fillable = ['date','docket','client_id','receiver_name','boy_name','total_docket','amount_to_be_collected','total_weight','origin','destination','code','sender_name','total_package'];
 
     public function client()
     {
@@ -198,6 +198,19 @@ class Loading extends Model
 
         ];
         return $array;
+    }
+    public static function code($id){
+        //get last record
+        $record = self::where('code','!=','')->latest()->first();
+        if($record)
+            $expNum =  ltrim($record->code,'LOD');
+        else
+            $expNum = [];
+        if(!$expNum){
+            return 'LOD0001';
+        }
+            $number = str_pad(isset($expNum) ? $expNum+1 : 1, 4, '0', STR_PAD_LEFT);
+           return $id.$number;
     }
 
 

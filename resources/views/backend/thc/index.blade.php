@@ -182,8 +182,8 @@
                                 <label class="checkbox checkbox-success"><input data-missionid="{{$shipment->mission_id}}" data-clientaddresssender="" data-clientaddress="{{$shipment->reciver_address}}" data-clientname="{{$shipment->receiver_name}}" data-clientstatehidden="{{$shipment->to_state_id}}" data-clientstate="{{$shipment->to_state->name ?? '' }}" data-clientareahidden="{{$shipment->to_area_id ?? '' }}" data-clientarea="{{$shipment->to_area->name ?? '' }}" data-clientid="{{$shipment->client->id ?? '' }}" data-paymentmethodid="{{$shipment->payment_method_id ?? '' }}" data-branchid="{{$shipment->branch_id ?? '' }}" data-branchname="{{$shipment->branch->name  ?? '' }}"  type="checkbox" class="sh-check checkbox-client-id-{{$shipment->client_id}}" name="checked_ids[]" value="{{$shipment->id}}" /><span></span></label>
                             @endif
                         </td>
-                        <td width="3%"><a href="{{url('admin/loading/'.$shipment->id )}}">{{ ($key+1) + ($shipments->currentPage() - 1)*$shipments->perPage() }}</a></td>
-                        <td width="5%"><a href="{{url('admin/loading/'. $shipment->id )}}">{{$shipment->code}}</a></td>
+                        <td width="3%"><a href="{{url('admin/thc/'.$shipment->id )}}">{{ ($key+1) + ($shipments->currentPage() - 1)*$shipments->perPage() }}</a></td>
+                        <td width="5%"><a href="{{url('admin/thc/'. $shipment->id )}}">{{$shipment->code}}</a></td>
                         <td>{{$shipment->date}}</td>
                         @if($status == "all") <td>{{$shipment->getStatus()}}</td> @endif
 

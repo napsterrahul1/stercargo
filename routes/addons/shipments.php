@@ -61,15 +61,20 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
     Route::resource('prs','PrsController',[
         'as' => 'admin'
     ]);
+    Route::get('prsdocketWeight','PrsController@prsdocketWeight');
+    Route::post('prs/docketweight/order','PrsController@prsdocketWeight')->name('admin.prs.docketweight.order');
 
     Route::get('loading/delete/{shipment}','LoadingController@destroy')->name('admin.loading.delete-shipment');
     Route::patch('loading/update/{shipment}','LoadingController@update')->name('admin.loading.update-shipment');
+    Route::post('loading/converttomanifest/{shipment}','LoadingController@converttomanifest')->name('admin.loading.converttomanifest');
 
     Route::get('loading/export-prs/{status}','LoadingController@exportShipments')->name('admin.loading.export');
 
     Route::resource('loading','LoadingController',[
         'as' => 'admin'
     ]);
+    Route::get('loading/print/{shipment}/{type}','LoadingController@prints')->name('admin.loading.prints');
+
 
     Route::get('manifest/delete/{shipment}','ManifestController@destroy')->name('admin.manifest.delete-shipment');
     Route::patch('manifest/update/{shipment}','ManifestController@update')->name('admin.manifest.update-shipment');
@@ -91,6 +96,7 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
 
     Route::resource('dockets', 'DocketController');
     Route::get('dockets/delete/{client}','DocketController@destroy')->name('dockets.delete-docket');
+    Route::get('/docketweight','DocketController@docketWeight');
 
 });
 
@@ -101,13 +107,13 @@ Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staf
 });
 Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:customer']], function(){
     Route::get('import', 'ShipmentController@import')->name('admin.shipments.import');
-	Route::post('import/parse', 'ShipmentController@parseImport')->name('admin.shipments.import_parse');
+    Route::post('import/parse', 'ShipmentController@parseImport')->name('admin.shipments.import_parse');
 });
 
 Route::group(['prefix' =>'admin', 'middleware' => ['auth', 'user_role:admin|staff|customer|branch']], function(){
 
     Route::get('shipments/add-shipment-api','ShipmentController@addShipmentByApi')->name('admin.shipments.add.by.api');
-	//Update Routes
+    //Update Routes
     Route::get('shipments/print/{shipment}/{type}','ShipmentController@print')->name('admin.shipments.print');
 
     Route::get('shipments/ajaxed-get-addressess','ShipmentController@ajaxGetAddressess')->name('admin.shipments.get-addressess-ajax');

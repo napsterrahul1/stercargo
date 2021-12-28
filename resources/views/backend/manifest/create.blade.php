@@ -175,44 +175,28 @@
                             </div>
 
                             <div class="col-md-6">
-                                <div class="form-group">
+                               <div class="form-group">
                                     <label>{{translate('Docket Number')}}:</label>
-                                    <select class="form-control kt-select2 select-branch" name="Shipment[docket][]" multiple>
+                                    <select class="form-control kt-select2 select-doc" name="Shipment[docket][]" id="docket" multiple>
                                         <option></option>
-                                        @foreach($branchs as $branch)
-                                            @if($user_type == 'branch')
-                                                <option @if( Auth::user()->userBranch->branch_id==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
-                                            @else
-                                                <option @if(\App\ShipmentSetting::getVal('def_branch')==$branch->id) selected @endif value="{{$branch->id}}">{{$branch->name}}</option>
-                                            @endif
+                                        @foreach($dockets as $docket)
+                                        <option value="{{$docket->id}}">{{$docket->code}}</option>
                                         @endforeach
-
                                     </select>
-                                </div>
+                              
                             </div>
+                            </div>
+
 
 
 
                             <div class="col-md-6">
-                                <div class="form-group client-select">
-                                    <label>{{translate('Customer')}}:</label>
-                                    @if($auth_user->user_type == "customer")
-                                        <input type="text" placeholder="" class="form-control" name="" value="{{$auth_user->name}}" disabled>
-                                        <input type="hidden" name="Shipment[client_id]" value="{{$auth_user->userClient->id}}">
-                                    @else
-                                        <select class="form-control kt-select2 select-client" id="client-id" onchange="selectIsTriggered()" name="Shipment[client_id]">
-                                            <option></option>
-                                            @foreach($clients as $client)
-                                            <option value="{{$client->id}}" data-phone="{{$client->responsible_mobile}}">{{$client->name}}</option>
-                                            @endforeach
-
-                                        </select>
-                                    @endif
+                                <div class="form-group">
+                                    <label>{{translate('Sender Name')}}:</label>
+                                    <input type="text" placeholder="{{translate('Sender Name')}}" name="Shipment[sender_name]" class="form-control" />
 
                                 </div>
                             </div>
-
-
 
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -225,9 +209,10 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>{{translate('Total Docket Number')}}:</label>
-                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" />
+                                    <input type="text" placeholder="{{translate('Total Docket Number')}}" name="Shipment[total_docket]" class="form-control" id="total_docket" />
 
-                                </div>
+                              
+                            </div>
                             </div>
 
                             <div class="col-md-6">
@@ -254,13 +239,26 @@
                                 </div>
 
                             </div>
+ <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Total Package')}}:</label>
+                                    <input type="text" placeholder="{{translate('Total Package')}}" name="Shipment[total_package]" class="form-control" id="total_package" />
 
+                                </div>
+                            </div>
+                              <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>{{translate('Total Weight')}}:</label>
+                                    <input type="text" placeholder="{{translate('Total Weight')}}" name="Shipment[total_weight]" class="form-control" id="total_weight" />
+
+                                </div>
+                            </div>
 
 
                         </div>
                         <hr>
 
-                        <hr>
+                       <!--  <hr>
 
                         <div id="kt_repeater_1">
                             <div class="row" id="kt_repeater_1">
@@ -344,7 +342,7 @@
                                 </div>
 
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="mb-0 text-right form-group">
                         <button type="submit" class="btn btn-sm btn-primary">{{translate('Save')}}</button>
@@ -402,18 +400,16 @@
     $('.destination').select2({
             placeholder: "Select Destination",
     });
-    $('.select-branch').select2({
+
+    $('.select-doc').select2({
         placeholder: "Select Docket",
-    })
-    {{--@if($user_type == 'admin' || in_array('1006', $staff_permission) )--}}
-        {{--.on('select2:open', () => {--}}
-            {{--$(".select2-results:not(:has(a))").append(`<li style='list-style: none; padding: 10px;'><a style="width: 100%" href="{{route('admin.branchs.create')}}?redirect=admin.shipments.create"--}}
-                {{--class="btn btn-primary" >+ {{translate('Add New Docket')}}</a>--}}
-                {{--</li>`);--}}
-        {{--});--}}
-    {{--@endif--}}
+    });
 
+    $('.select-doc').on('change', function() {
+       var dockcount = $("#docket :selected").length;
 
+       $("#total_docket").val(dockcount);
+    });
 
     function calcTotalWeight() {
         console.log('sds');
@@ -445,29 +441,29 @@
 
         //Package Types Repeater
 
-        $('#kt_repeater_1').repeater({
-            initEmpty: false,
+        // $('#kt_repeater_1').repeater({
+        //     initEmpty: false,
 
-            show: function() {
-                $(this).slideDown();
-                $('.kt_touchspin_weight').TouchSpin({
-                    buttondown_class: 'btn btn-secondary',
-                    buttonup_class: 'btn btn-secondary',
-                    min: 1,
-                    max: 1000000000,
-                    stepinterval: 50,
-                    maxboostedstep: 10000000,
-                    initval: 1,
-                    prefix: 'Kg'
-                });
+        //     show: function() {
+        //         $(this).slideDown();
+        //         $('.kt_touchspin_weight').TouchSpin({
+        //             buttondown_class: 'btn btn-secondary',
+        //             buttonup_class: 'btn btn-secondary',
+        //             min: 1,
+        //             max: 1000000000,
+        //             stepinterval: 50,
+        //             maxboostedstep: 10000000,
+        //             initval: 1,
+        //             prefix: 'Kg'
+        //         });
 
-                calcTotalWeight();
-            },
+        //         calcTotalWeight();
+        //     },
 
-            hide: function(deleteElement) {
-                $(this).slideUp(deleteElement);
-            }
-        });
+        //     hide: function(deleteElement) {
+        //         $(this).slideUp(deleteElement);
+        //     }
+        // });
 
 
         $('body').on('click', '.delete_item', function(){

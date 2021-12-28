@@ -64,13 +64,15 @@ class DocketController extends Controller
                 'from_source' => ['email','required','unique:users'],
                 'to_destination' => 'required',
             ]);
- 
             DB::beginTransaction();
             $model = new Docket();
-            $input = $request->all();
+         $input = $request->all();
+
+            $input['code'] = Docket::code('DOC');
+
              $user = Docket::create($input);
              DB::commit();
-            flash(translate("Client added successfully"))->success();
+            flash(translate("Docket added successfully"))->success();
             $route = 'dockets.index';
             return execute_redirect($request,$route);
         }catch(\Exception $e){
@@ -353,5 +355,14 @@ class DocketController extends Controller
             }      
         }
         
+    }
+
+    public function docketWeight($id)
+    {
+        $doc= explode(",",$id);
+        $weight = '';
+        $weight = Docket::whereIn('id', $doc)->sum('charge_weight');
+        
+        return $weight;
     }
 }

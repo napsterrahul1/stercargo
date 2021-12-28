@@ -46,6 +46,13 @@ class Docket extends Model
         
         return $weight;
     }
+      public static function docketPackage($id)
+    {
+        $doc= explode(",",$id);
+        $pcs = '';
+        $pcs = Docket::whereIn('id', $doc)->sum('pcs');
+        return $pcs;
+    }
     public static function docketAmount($id)
     {
         $doc= explode(",",$id);
@@ -53,6 +60,19 @@ class Docket extends Model
         $weight = Docket::whereIn('id', $doc)->sum('final_amount');
         
         return $weight;
+    }
+    public static function code($id){
+        //get last record
+        $record = self::where('code','!=','')->latest()->first();
+        if($record)
+            $expNum =  ltrim($record->code,'DOC');
+        else
+            $expNum = [];
+        if(!$expNum){
+            return 'DOC0001';
+        }
+            $number = str_pad(isset($expNum) ? $expNum+1 : 1, 4, '0', STR_PAD_LEFT);
+           return $id.$number;
     }
 
  

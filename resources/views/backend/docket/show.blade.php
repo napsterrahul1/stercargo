@@ -80,8 +80,13 @@ $staff_permission = json_decode(Auth::user()->staff->role->permissions ?? "[]");
 
             <div class="form-group">
                 <label>{{translate('Freight Paid By')}}:</label>
-                <input id="freight_paid" type="text" class="form-control"
-                placeholder="{{translate('Freight Paid By')}}" name="freight_paid_by" value="{{$client->freight_paid_by}}" readonly>
+                
+                <select name="freight_paid_by" placeholder="{{translate('Freight Paid By')}}" class="form-control" id="freight_paid_by">
+               <option value="">Select</option>
+               <option value="0" {{$client->freight_paid_by == 0 ? 'selected' : ''}}>sender</option>
+               <option value="1" {{$client->freight_paid_by == 1 ? 'selected' : ''}}>Receiver</option>
+               <option value="2" {{$client->freight_paid_by == 2 ? 'selected' : ''}}>Other</option>
+               </select>
             </div>
             </div>
 

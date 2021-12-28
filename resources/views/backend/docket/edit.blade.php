@@ -31,7 +31,7 @@ $staff_permission = json_decode(Auth::user()->staff->role->permissions ?? "[]");
                         <label>{{translate('Date')}}:</label>
                         {{--<input type="text" id="date" class="form-control" placeholder="{{translate('Date')}}" name="date">--}}
                         <input type="text" placeholder="{{translate('Date')}}" name="date" autocomplete="off"
-                               class="form-control" id="kt_datepicker_3" value="{{$client->date}}"/>
+                               class="form-control" id="kt_datepicker_3" value="{{$client->date}}" readonly/>
 
                     </div>
                 </div>
@@ -76,15 +76,7 @@ $staff_permission = json_decode(Auth::user()->staff->role->permissions ?? "[]");
                     </select>
                 </div>
             </div>
-            <div class="col-md-3">
-
-            <div class="form-group">
-                <label>{{translate('Freight Paid By')}}:</label>
-                <input id="freight_paid" type="text" class="form-control"
-                placeholder="{{translate('Freight Paid By')}}" name="freight_paid_by" value="{{$client->freight_paid_by}}">
-            </div>
-            </div>
-
+           
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>{{translate('Sender')}}:</label>
@@ -96,9 +88,22 @@ $staff_permission = json_decode(Auth::user()->staff->role->permissions ?? "[]");
                     <div class="form-group">
                         <label>{{translate('Receiver')}}:</label>
                         <input type="text" class="form-control" placeholder="{{translate('Receiver')}}"
-                               name="receiver" value="{{$client->receiver}}">
+                               name="receiver" value="{{$client->receiver}}" id="receiver">
                     </div>
                 </div>
+ <div class="col-md-3">
+
+            <div class="form-group">
+                <label>{{translate('Freight Paid By')}}:</label>
+             
+                <select name="freight_paid_by" placeholder="{{translate('Freight Paid By')}}" class="form-control" id="freight_paid_by">
+               <option value="">Select</option>
+               <option value="0" {{$client->freight_paid_by == 0 ? 'selected' : ''}}>sender</option>
+               <option value="1" {{$client->freight_paid_by == 1 ? 'selected' : ''}}>Receiver</option>
+               <option value="2" {{$client->freight_paid_by == 2 ? 'selected' : ''}}>Other</option>
+               </select>
+            </div>
+            </div>
 
                 <div class="col-md-3">
                     <div class="form-group">
@@ -439,7 +444,45 @@ $('#final_amount').val(perc);
     });
 
 
+$('#fuel').keyup(function(){
+  if ($(this).val() > 20){
+    alert("No numbers above 20");
+    $(this).val('20');
+  }
+});
 
+$('#fov').keyup(function(){
+  if ($(this).val() > 0.3){
+    alert("No numbers above 0.3");
+    $(this).val('0.3');
+  }
+});
+$("#freight_paid_by").on('change', function(){
+    var sender = $("#sender").val();
+    var receiver = $("#receiver").val();
+    var freight = $(this).val();
+    if(freight == 0)
+    {
+        if(!sender)
+        {
+            alert('Please add sender')
+        }
+        $("#billing_party").val(sender);
+        
+
+    }else if(freight == 1){
+
+        if(!receiver)
+        {
+            alert('Please add receiver')
+        }
+        $("#billing_party").val(receiver);
+
+    }else{
+    $("#billing_party").val('');
+
+    }
+});
 
 </script>
 @endsection

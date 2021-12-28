@@ -1,3 +1,4 @@
+
 <?php 
 use \Milon\Barcode\DNS1D;
 $d = new DNS1D();

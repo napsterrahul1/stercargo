@@ -43,6 +43,7 @@ use App\AddressClient;
 use App\Http\Helpers\UserRegistrationHelper;
 use Carbon\Carbon;
 use App\Exports\ShipmentsExportExcel;
+use App\Models\Docket;
 
 class ManifestController extends Controller
 {
@@ -91,7 +92,10 @@ class ManifestController extends Controller
     {
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.manifest.create', compact('branchs', 'clients'));
+        $dockets = Docket::get();
+
+
+        return view('backend.manifest.create', compact('branchs', 'clients','dockets'));
     }
 
     /**
@@ -102,6 +106,7 @@ class ManifestController extends Controller
      */
     public function store(Request $request)
     {
+      $amount = Docket::docketWeight( implode(',',$request->Shipment['docket']));
 
         try {
             DB::beginTransaction();
@@ -109,6 +114,8 @@ class ManifestController extends Controller
             $model->fill($_POST['Shipment']);
             $model->docket = implode(',',$request->Shipment['docket']);
             $model->code = rand(1,9999);
+            $model->total_weight = $amount;
+
             if (!$model->save()) {
                 return response()->json(['message' => new \Exception()] );
             }
@@ -180,7 +187,9 @@ class ManifestController extends Controller
         $shipment = Manifest::find($id);
         $branchs = Branch::where('is_archived', 0)->get();
         $clients = Client::where('is_archived', 0)->get();
-        return view('backend.manifest.edit', compact('branchs', 'clients', 'shipment'));
+                         $dockets = Docket::get();
+
+        return view('backend.manifest.edit', compact('branchs', 'clients', 'shipment','dockets'));
     }
 
     /**
@@ -192,12 +201,14 @@ class ManifestController extends Controller
      */
     public function update(Request $request, $shipment)
     {
+      $amount = Docket::docketWeight( implode(',',$request->Shipment['docket']));
 
         try {
             DB::beginTransaction();
             $model = Manifest::find($shipment);
             $model->fill($_POST['Shipment']);
             $model->docket = implode(',',$request->Shipment['docket']);
+            $model->total_weight = $amount;
 
             if (!$model->save()) {
                 throw new \Exception();
