@@ -49,14 +49,13 @@ class Docket extends Model
       public static function docketPackage($id)
     {
         $doc= explode(",",$id);
-        $pcs = '';
         $pcs = Docket::whereIn('id', $doc)->sum('pcs');
         return $pcs;
     }
     public static function docketAmount($id)
     {
         $doc= explode(",",$id);
-        $weight = '';
+
         $weight = Docket::whereIn('id', $doc)->sum('final_amount');
         
         return $weight;
